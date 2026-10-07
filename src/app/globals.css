@@ -1,0 +1,308 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * HENU DESIGN SYSTEM — SEMANTIC TOKENS
+ * LIGHT THEME IS THE DEFAULT (Document 04 §3, master instruction §6)
+ * Dark theme is an optional manually selected alternate theme (warm graphite).
+ */
+
+:root {
+  /* Surface / Paper Hierarchy (Warm, editorial paper) */
+  --surface: #fcf9f6;
+  --surface-dim: #dcd9d7;
+  --surface-bright: #fcf9f6;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #f6f3f1;
+  --surface-container: #f0edeb;
+  --surface-container-high: #ebe8e5;
+  --surface-container-highest: #e5e2e0;
+  --surface-variant: #e5e2e0;
+
+  /* Typography / Ink Hierarchy */
+  --on-surface: #1c1c1a;
+  --on-surface-variant: #404946;
+  --on-surface-muted: #707976;
+
+  /* Outlines & Hairlines */
+  --outline: #707976;
+  --outline-variant: #c0c8c5;
+
+  /* Primary Brand (Pine) */
+  --primary: #0e443b;
+  --on-primary: #ffffff;
+  --primary-container: #2a5c52;
+  --on-primary-container: #9fd2c5;
+  --primary-fixed: #b9ede0;
+  --on-primary-fixed: #00201b;
+
+  /* Secondary Signal (Ember) */
+  --secondary: #a0401c;
+  --on-secondary: #ffffff;
+  --secondary-container: #fe875d;
+  --on-secondary-container: #722200;
+  --secondary-fixed: #ffdbcf;
+  --on-secondary-fixed: #390c00;
+
+  /* Tertiary (Deep Violet) */
+  --tertiary: #3f209e;
+  --on-tertiary: #ffffff;
+  --tertiary-container: #573db6;
+  --on-tertiary-container: #ccc0ff;
+
+  /* Error / System */
+  --error: #ba1a1a;
+  --on-error: #ffffff;
+  --error-container: #ffdad6;
+  --on-error-container: #93000a;
+
+  /* Product Hue Signatures */
+  --product-os: #0e443b;
+  --product-ai: #3f209e;
+  --product-pa: #a0401c;
+  --product-ide: #1b5e20;
+
+  /* Radii */
+  --radius-xs: 2px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  /* Shadows */
+  --shadow-subtle: 0 1px 3px rgba(28, 28, 26, 0.05);
+  --shadow-elevated: 0 4px 12px rgba(28, 28, 26, 0.08);
+
+  /* Focus ring */
+  --focus-ring: #0e443b;
+  --focus-ring-offset: #fcf9f6;
+
+  /* Chromatic Spectrum Mesh */
+  --spectrum-stop-1: rgba(14, 68, 59, 0.12);
+  --spectrum-stop-2: rgba(160, 64, 28, 0.10);
+  --spectrum-stop-3: rgba(63, 32, 158, 0.08);
+}
+
+/*
+ * DARK THEME ("Warm Graphite" — Document 04 §4)
+ * Applied only when data-theme="dark" is explicitly set.
+ */
+[data-theme="dark"] {
+  --surface: #1a1918;
+  --surface-dim: #121211;
+  --surface-bright: #252423;
+  --surface-container-lowest: #141312;
+  --surface-container-low: #1f1e1d;
+  --surface-container: #262524;
+  --surface-container-high: #2d2c2b;
+  --surface-container-highest: #353433;
+  --surface-variant: #353433;
+
+  --on-surface: #edeae6;
+  --on-surface-variant: #c2c8c4;
+  --on-surface-muted: #8a9390;
+
+  --outline: #8a9390;
+  --outline-variant: #404946;
+
+  /* Retuned for dark contrast */
+  --primary: #9dd1c4;
+  --on-primary: #003730;
+  --primary-container: #1b4f45;
+  --on-primary-container: #b9ede0;
+  --primary-fixed: #b9ede0;
+  --on-primary-fixed: #00201b;
+
+  --secondary: #ffb59c;
+  --on-secondary: #5c1800;
+  --secondary-container: #802a05;
+  --on-secondary-container: #ffdbcf;
+  --secondary-fixed: #ffdbcf;
+  --on-secondary-fixed: #390c00;
+
+  --tertiary: #cbbeff;
+  --on-tertiary: #270087;
+  --tertiary-container: #4a2ea9;
+  --on-tertiary-container: #e6deff;
+
+  --error: #ffb4ab;
+  --on-error: #690005;
+  --error-container: #93000a;
+  --on-error-container: #ffdad6;
+
+  --product-os: #9dd1c4;
+  --product-ai: #cbbeff;
+  --product-pa: #ffb59c;
+  --product-ide: #81c784;
+
+  --shadow-subtle: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 4px 16px rgba(0, 0, 0, 0.6);
+
+  --focus-ring: #ffb59c;
+  --focus-ring-offset: #1a1918;
+
+  --spectrum-stop-1: rgba(157, 209, 196, 0.08);
+  --spectrum-stop-2: rgba(255, 181, 156, 0.07);
+  --spectrum-stop-3: rgba(203, 190, 255, 0.06);
+}
+
+/* Core Baseline Reset & Accessibility */
+html {
+  background-color: var(--surface);
+  color: var(--on-surface);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  background-color: var(--surface);
+  color: var(--on-surface);
+  font-family: var(--font-text), "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Two-tone Focus Ring (WCAG 2.2 AA compliant) */
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+/* Visually Hidden Helper (AB) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Hairline border utility */
+.border-hairline {
+  border-color: rgba(112, 121, 118, 0.25);
+}
+
+/* Chromatic Spectrum Field (Document 04 §6.3) */
+.spectrum-field {
+  background: radial-gradient(
+      ellipse 60% 50% at 85% 30%,
+      var(--spectrum-stop-2) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse 50% 60% at 20% 80%,
+      var(--spectrum-stop-1) 0%,
+      transparent 75%
+    ),
+    radial-gradient(
+      ellipse 70% 60% at 50% 50%,
+      var(--spectrum-stop-3) 0%,
+      transparent 80%
+    );
+  pointer-events: none;
+}
+
+/* V1 Motion Set (MOTION-001, Document 04 §7) */
+/* Restrained opacity & transform transitions; zero layout properties animated */
+.motion-fade-in {
+  opacity: 0;
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.motion-slide-up {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.motion-lift {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  will-change: transform;
+}
+
+.motion-lift:hover {
+  transform: translateY(-2px);
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* MOTION-003: Progressive View Transitions API & Shared-Element Motion */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: 160ms cubic-bezier(0.4, 0, 1, 1) both pageFadeOut;
+}
+
+::view-transition-new(root) {
+  animation: 200ms cubic-bezier(0, 0, 0.2, 1) 40ms both pageFadeIn;
+}
+
+.view-transition-portfolio-hero {
+  view-transition-name: portfolio-hero-image;
+}
+
+.view-transition-product-hero {
+  view-transition-name: product-hero-image;
+}
+
+@keyframes pageFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes pageFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+

@@ -1,0 +1,54 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Lint, Typecheck, Test & Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Secret Scan (Ensure no raw secrets committed)
+        run: |
+          echo "Scanning for accidental committed secret patterns..."
+          ! grep -rn "SUPABASE_SERVICE_ROLE_KEY=ey" . --exclude-dir={node_modules,.next,.git} || exit 1
+          ! grep -rn "ADMIN_SESSION_SECRET=[a-zA-Z0-9]\{32,\}" . --exclude-dir={node_modules,.next,.git} || exit 1
+
+      - name: Typecheck (Strict TypeScript)
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Unit & Security Tests
+        run: npm test
+
+      - name: Build Application
+        run: npm run build
+        env:
+          NEXT_PUBLIC_APP_ENV: test
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+          NEXT_PUBLIC_CALENDLY_URL: https://calendly.com/henuos
+          SUPABASE_SERVICE_ROLE_KEY: placeholder-service-role-key
+          ADMIN_SESSION_SECRET: placeholder-session-secret-min-32-chars-length
