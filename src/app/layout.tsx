@@ -50,30 +50,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" data-theme="light" suppressHydrationWarning>
-      <head>
-        {/*
-          Theme initialization script:
-          Default is strictly LIGHT THEME (Document 04 §3, master instruction §6).
-          Only applies 'dark' if the user explicitly stored a 'dark' preference in localStorage.
-        */}
-        <script
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                var stored = localStorage.getItem('henu-theme');
-                if (stored === 'dark') {
-                  document.documentElement.setAttribute('data-theme', 'dark');
-                } else {
-                  document.documentElement.setAttribute('data-theme', 'light');
-                }
-              } catch (e) {
-                document.documentElement.setAttribute('data-theme', 'light');
-              }
-            `,
-          }}
-        />
-      </head>
       <body className={`${fontDisplay.variable} ${fontText.variable} ${fontMono.variable} min-h-screen bg-surface text-on-surface antialiased selection:bg-secondary/20 selection:text-secondary`}>
         {/* Accessible Skip Link (Document 04 §9.4, AB Baseline) */}
         <a

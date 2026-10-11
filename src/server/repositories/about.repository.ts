@@ -3,6 +3,7 @@ import { BaseRepository } from "./base.repository";
 import type { Database } from "@/types/database";
 import type { AboutContent, AboutChapter, TimelineEntry } from "@/types/domain";
 import { AppError } from "@/lib/errors";
+import { localFileStore } from "../storage/local-file-store";
 
 export type UpdateAboutContentInput = Database["public"]["Tables"]["about_content"]["Update"];
 
@@ -131,7 +132,13 @@ export const BASELINE_ABOUT_CONTENT: AboutContent = {
 };
 
 export class AboutRepository extends BaseRepository {
-  private inMemoryAbout: AboutContent = { ...BASELINE_ABOUT_CONTENT };
+  private getLocalAbout(): AboutContent {
+    return localFileStore.get<AboutContent>("about_content", BASELINE_ABOUT_CONTENT);
+  }
+
+  private saveLocalAbout(content: AboutContent): void {
+    localFileStore.set("about_content", content);
+  }
 
   /**
    * Retrieves About content singleton.
@@ -141,7 +148,7 @@ export class AboutRepository extends BaseRepository {
     const allowDraft = options?.allowDraft ?? false;
 
     if (!this.isConfigured) {
-      return this.filterForPublic(this.inMemoryAbout, allowDraft);
+      return this.filterForPublic(this.getLocalAbout(), allowDraft);
     }
 
     try {
@@ -152,12 +159,12 @@ export class AboutRepository extends BaseRepository {
         .single();
 
       if (error || !data) {
-        return this.filterForPublic(this.inMemoryAbout, allowDraft);
+        return this.filterForPublic(this.getLocalAbout(), allowDraft);
       }
 
       return this.filterForPublic(data as AboutContent, allowDraft);
     } catch {
-      return this.filterForPublic(this.inMemoryAbout, allowDraft);
+      return this.filterForPublic(this.getLocalAbout(), allowDraft);
     }
   }
 
@@ -175,11 +182,12 @@ export class AboutRepository extends BaseRepository {
     };
 
     if (!this.isConfigured) {
-      this.inMemoryAbout = {
-        ...this.inMemoryAbout,
+      const updated = {
+        ...this.getLocalAbout(),
         ...payload,
       } as AboutContent;
-      return this.inMemoryAbout;
+      this.saveLocalAbout(updated);
+      return updated;
     }
 
     try {
@@ -191,22 +199,24 @@ export class AboutRepository extends BaseRepository {
         .single();
 
       if (error || !data) {
-        // Fallback update in-memory
-        this.inMemoryAbout = {
-          ...this.inMemoryAbout,
+        // Fallback update in local storage
+        const updated = {
+          ...this.getLocalAbout(),
           ...payload,
         } as AboutContent;
-        return this.inMemoryAbout;
+        this.saveLocalAbout(updated);
+        return updated;
       }
 
-      this.inMemoryAbout = data as AboutContent;
+      this.saveLocalAbout(data as AboutContent);
       return data as AboutContent;
     } catch {
-      this.inMemoryAbout = {
-        ...this.inMemoryAbout,
+      const updated = {
+        ...this.getLocalAbout(),
         ...payload,
       } as AboutContent;
-      return this.inMemoryAbout;
+      this.saveLocalAbout(updated);
+      return updated;
     }
   }
 

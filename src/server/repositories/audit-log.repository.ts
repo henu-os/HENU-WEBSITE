@@ -3,6 +3,7 @@ import { BaseRepository } from "./base.repository";
 import type { AuditLog } from "@/types/domain";
 import type { Database } from "@/types/database";
 import { AppError } from "@/lib/errors";
+import { localFileStore } from "../storage/local-file-store";
 
 export type CreateAuditLogInput = Database["public"]["Tables"]["audit_logs"]["Insert"];
 
@@ -34,7 +35,13 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
 ];
 
 export class AuditLogRepository extends BaseRepository {
-  private inMemoryLogs: AuditLog[] = [...INITIAL_AUDIT_LOGS];
+  private getLocalLogs(): AuditLog[] {
+    return localFileStore.get<AuditLog[]>("audit_logs", INITIAL_AUDIT_LOGS);
+  }
+
+  private saveLocalLogs(logs: AuditLog[]): void {
+    localFileStore.set("audit_logs", logs);
+  }
 
   /**
    * Appends an immutable audit log entry.
@@ -54,7 +61,9 @@ export class AuditLogRepository extends BaseRepository {
         ip_address: input.ip_address ?? null,
         created_at: new Date().toISOString(),
       };
-      this.inMemoryLogs.unshift(created);
+      const logs = this.getLocalLogs();
+      logs.unshift(created);
+      this.saveLocalLogs(logs);
       return created;
     }
 
@@ -86,7 +95,7 @@ export class AuditLogRepository extends BaseRepository {
     offset?: number;
   } = {}): Promise<{ logs: AuditLog[]; total: number }> {
     if (!this.isConfigured) {
-      let filtered = [...this.inMemoryLogs];
+      let filtered = [...this.getLocalLogs()];
       if (options.entityType && options.entityType !== "all") {
         filtered = filtered.filter((l) => l.entity_type === options.entityType);
       }

@@ -18,8 +18,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: item.href === "/" ? 1.0 : 0.8,
   }));
 
-  // Add /about and /contact if not in primary nav
-  const additionalStatic = ["/about", "/contact"];
+  // Add /about, /contact, /portfolio, /sitemap, /quick-buy, /privacy, /terms if not in primary nav
+  const additionalStatic = [
+    "/about",
+    "/contact",
+    "/portfolio",
+    "/sitemap",
+    "/quick-buy",
+    "/privacy",
+    "/terms",
+  ];
   for (const path of additionalStatic) {
     if (!staticRoutes.some((r) => r.url === `${baseUrl}${path}`)) {
       staticRoutes.push({

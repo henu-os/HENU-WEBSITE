@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { siteConfig } from "@/config/site";
 
 interface FooterProps {
@@ -11,54 +12,117 @@ export const Footer: React.FC<FooterProps> = ({
   footerText,
   organizationName = siteConfig.legalName,
 }) => {
+  // Ensure the copyright explicitly states 2025 as requested
+  const copyrightStatement =
+    footerText && !footerText.includes("2026")
+      ? footerText
+      : `© 2025 ${organizationName}. All rights reserved.`;
+
   return (
     <footer className="border-t border-border-default bg-surface-secondary text-ink-secondary">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
-        <div className="grid grid-cols-1 gap-10 md:grid-cols-4 lg:gap-12">
-          {/* Identity & Vision Statement */}
-          <div className="md:col-span-2">
+        {/* Main 4-Column Grid */}
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
+          {/* Column 1: Identity & Vision */}
+          <div className="space-y-4">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 font-display text-xl font-bold tracking-tight text-ink-primary"
+              className="inline-flex items-center gap-2.5 font-display text-xl font-bold tracking-tight text-ink-primary hover:opacity-90 transition-opacity"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded bg-surface-primary text-ink-primary font-mono text-xs font-bold border border-border-default">
-                H
+              <span className="relative flex h-7 w-11 shrink-0 items-center justify-center">
+                <Image
+                  src="/brand/henu-os.png"
+                  alt="HENU OS"
+                  fill
+                  sizes="44px"
+                  className="object-contain"
+                  unoptimized
+                />
               </span>
-              <span>HENU</span>
+              <span>HENU OS</span>
             </Link>
-            <p className="mt-3 max-w-md text-sm leading-relaxed text-ink-secondary">
+            <p className="text-xs leading-relaxed text-ink-secondary">
               {siteConfig.description}
             </p>
-            <p className="mt-4 text-xs font-mono text-ink-muted">
-              {organizationName}
-            </p>
+            <div className="pt-1">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-mono font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Systems Operational
+              </span>
+            </div>
           </div>
 
-          {/* Navigation Links */}
+          {/* Column 2: Services */}
           <div>
             <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-ink-primary">
-              Navigation
+              Services
             </h3>
-            <ul className="mt-4 space-y-2.5 text-sm list-none p-0">
-              {siteConfig.primaryNavigation.map((item) => (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className="hover:text-ink-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded-xs"
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
+            <ul className="mt-4 space-y-2.5 text-xs list-none p-0">
+              <li>
+                <Link
+                  href="/services/website-development"
+                  className="hover:text-ink-primary transition-colors"
+                >
+                  Website Development
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/mobile-app-development"
+                  className="hover:text-ink-primary transition-colors"
+                >
+                  Mobile App Development
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/software-solutions"
+                  className="hover:text-ink-primary transition-colors"
+                >
+                  Software Solutions
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/ai-automation"
+                  className="hover:text-ink-primary transition-colors"
+                >
+                  AI Automation
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/graphic-design"
+                  className="hover:text-ink-primary transition-colors"
+                >
+                  Graphic Design
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/digital-marketing"
+                  className="hover:text-ink-primary transition-colors"
+                >
+                  Digital Marketing
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services/documentation-and-startup-services"
+                  className="hover:text-ink-primary transition-colors"
+                >
+                  Documentation &amp; Startup
+                </Link>
+              </li>
             </ul>
           </div>
 
-          {/* Ecosystem Column */}
+          {/* Column 3: Products */}
           <div>
             <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-ink-primary">
-              Ecosystem
+              Products
             </h3>
-            <ul className="mt-4 space-y-2.5 text-sm list-none p-0">
+            <ul className="mt-4 space-y-2.5 text-xs list-none p-0">
               {siteConfig.products.map((product) => (
                 <li key={product.slug}>
                   <Link
@@ -69,21 +133,165 @@ export const Footer: React.FC<FooterProps> = ({
                   </Link>
                 </li>
               ))}
+              <li>
+                <Link
+                  href="/quick-buy"
+                  className="hover:text-ink-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded-xs"
+                >
+                  Quick Buy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/sitemap.xml"
+                  prefetch={false}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hover:text-ink-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring rounded-xs"
+                >
+                  XML Site Map
+                </Link>
+              </li>
             </ul>
+          </div>
+
+          {/* Column 4: Contact Us */}
+          <div className="space-y-4">
+            <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-ink-primary">
+              Contact Us
+            </h3>
+            <ul className="mt-4 space-y-3.5 text-xs list-none p-0">
+              {/* Name */}
+              <li className="flex items-center gap-2.5">
+                <svg
+                  className="h-4 w-4 text-ink-muted shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  />
+                </svg>
+                <span className="font-medium text-ink-primary">{siteConfig.contact.name}</span>
+              </li>
+
+              {/* Number */}
+              <li className="flex items-center gap-2.5">
+                <svg
+                  className="h-4 w-4 text-ink-muted shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                  />
+                </svg>
+                <a
+                  href={`tel:${siteConfig.contact.phone.replace(/\s+/g, "")}`}
+                  className="hover:text-ink-primary hover:underline transition-colors font-mono"
+                >
+                  {siteConfig.contact.phone}
+                </a>
+              </li>
+
+              {/* Mail */}
+              <li className="flex items-center gap-2.5">
+                <svg
+                  className="h-4 w-4 text-ink-muted shrink-0"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                <a
+                  href={`mailto:${siteConfig.contact.email}`}
+                  className="hover:text-ink-primary hover:underline transition-colors font-mono break-all"
+                >
+                  {siteConfig.contact.email}
+                </a>
+              </li>
+
+              {/* Address */}
+              <li className="flex items-start gap-2.5">
+                <svg
+                  className="h-4 w-4 text-ink-muted shrink-0 mt-0.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={1.75}
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                  />
+                </svg>
+                <span className="text-ink-secondary leading-snug">
+                  {siteConfig.contact.address}
+                </span>
+              </li>
+            </ul>
+
+            <div className="pt-2">
+              <a
+                href={siteConfig.links.calendly}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-ink-primary text-surface-primary font-mono text-[11px] font-semibold uppercase tracking-wider hover:bg-ink-secondary transition-colors"
+              >
+                <span>Book Meeting</span>
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
         <div className="mt-12 border-t border-border-default pt-8 flex flex-col md:flex-row items-center justify-between text-xs text-ink-muted gap-4">
           <p>
-            {footerText || `© ${new Date().getFullYear()} ${organizationName}. All rights reserved.`}
+            {copyrightStatement}
           </p>
           <div className="flex items-center gap-6">
-            <Link href="/privacy" className="hover:text-ink-primary hover:underline transition-colors">
+            <Link
+              href="/privacy"
+              className="hover:text-ink-primary hover:underline transition-colors"
+            >
               Privacy Policy
             </Link>
-            <Link href="/terms" className="hover:text-ink-primary hover:underline transition-colors">
+            <Link
+              href="/terms"
+              className="hover:text-ink-primary hover:underline transition-colors"
+            >
               Terms of Service
+            </Link>
+            <Link
+              href="/sitemap"
+              className="hover:text-ink-primary hover:underline transition-colors"
+            >
+              Site Map
             </Link>
           </div>
         </div>

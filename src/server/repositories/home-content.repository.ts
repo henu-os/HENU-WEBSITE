@@ -3,6 +3,7 @@ import { BaseRepository } from "./base.repository";
 import type { HomeContent } from "@/types/domain";
 import type { Database } from "@/types/database";
 import { AppError } from "@/lib/errors";
+import { localFileStore } from "@/server/storage/local-file-store";
 
 export type UpdateHomeContentInput = Database["public"]["Tables"]["home_content"]["Update"];
 
@@ -29,14 +30,12 @@ const DEFAULT_HOME_CONTENT: HomeContent = {
 };
 
 export class HomeContentRepository extends BaseRepository {
-  private inMemoryHome: HomeContent = { ...DEFAULT_HOME_CONTENT };
-
   /**
    * Retrieves home page content. Falls back to verified default baseline if not yet saved in DB.
    */
   async getHomeContent(): Promise<HomeContent> {
     if (!this.isConfigured) {
-      return this.inMemoryHome;
+      return localFileStore.get("home_content", DEFAULT_HOME_CONTENT);
     }
 
     try {
@@ -47,13 +46,13 @@ export class HomeContentRepository extends BaseRepository {
         .single();
 
       if (error || !data) {
-        return this.inMemoryHome;
+        return localFileStore.get("home_content", DEFAULT_HOME_CONTENT);
       }
 
-      this.inMemoryHome = data as HomeContent;
+      localFileStore.set("home_content", data as HomeContent);
       return data as HomeContent;
     } catch {
-      return this.inMemoryHome;
+      return localFileStore.get("home_content", DEFAULT_HOME_CONTENT);
     }
   }
 
@@ -74,8 +73,8 @@ export class HomeContentRepository extends BaseRepository {
     };
 
     if (!this.isConfigured) {
-      this.inMemoryHome = payload as HomeContent;
-      return this.inMemoryHome;
+      localFileStore.set("home_content", payload as HomeContent);
+      return payload as HomeContent;
     }
 
     try {
@@ -86,15 +85,15 @@ export class HomeContentRepository extends BaseRepository {
         .single();
 
       if (error || !data) {
-        this.inMemoryHome = payload as HomeContent;
-        return this.inMemoryHome;
+        localFileStore.set("home_content", payload as HomeContent);
+        return payload as HomeContent;
       }
 
-      this.inMemoryHome = data as HomeContent;
+      localFileStore.set("home_content", data as HomeContent);
       return data as HomeContent;
     } catch {
-      this.inMemoryHome = payload as HomeContent;
-      return this.inMemoryHome;
+      localFileStore.set("home_content", payload as HomeContent);
+      return payload as HomeContent;
     }
   }
 }

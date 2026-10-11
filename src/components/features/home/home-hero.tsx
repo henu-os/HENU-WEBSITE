@@ -3,6 +3,7 @@ import type { HomeContent } from "@/types/domain";
 import { Container } from "@/components/ui/container";
 import { LinkButton } from "@/components/ui/link-button";
 import { Badge } from "@/components/ui/badge";
+import { ParticleAttractorBox } from "./particle-attractor-box";
 
 interface HomeHeroProps {
   content: HomeContent;
@@ -62,35 +63,9 @@ export function HomeHero({ content }: HomeHeroProps) {
             </div>
           </div>
 
-          {/* Right Column: Static Chromatic Spectrum Field (5 Cols on Desktop) */}
+          {/* Right Column: Interactive Three.js Particle Attractor Box */}
           <div className="lg:col-span-5 flex justify-center">
-            <div
-              aria-hidden="true"
-              className="relative w-full max-w-[460px] aspect-square rounded-2xl overflow-hidden border border-border-default shadow-sm bg-surface-secondary flex flex-col justify-between p-6"
-            >
-              {/* CSS Chromatic Mesh Background */}
-              <div className="absolute inset-0 spectrum-field opacity-85" />
-
-              {/* Architectural Framing Elements */}
-              <div className="relative z-10 flex justify-between items-start font-mono text-[10px] text-ink-muted uppercase tracking-wider select-none">
-                <span>SPEC-SYS.V1</span>
-                <span>4-HUE SPECTRUM</span>
-              </div>
-
-              <div className="relative z-10 p-5 rounded-lg bg-surface-primary/75 backdrop-blur-md border border-border-subtle shadow-xs">
-                <span className="font-mono text-xs font-semibold text-ink-primary block mb-1">
-                  HENU Architecture
-                </span>
-                <p className="font-sans text-xs text-ink-secondary leading-normal">
-                  OS &bull; Artificial Intelligence &bull; Personal Assistant &bull; Integrated Dev Environment
-                </p>
-              </div>
-
-              <div className="relative z-10 flex justify-between items-end font-mono text-[10px] text-ink-muted uppercase tracking-wider select-none">
-                <span>01 // OS</span>
-                <span>04 // IDE</span>
-              </div>
-            </div>
+            <ParticleAttractorBox />
           </div>
         </div>
 

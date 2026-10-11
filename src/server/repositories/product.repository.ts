@@ -3,6 +3,7 @@ import { BaseRepository } from "./base.repository";
 import type { Product } from "@/types/domain";
 import type { Database } from "@/types/database";
 import { AppError } from "@/lib/errors";
+import { localFileStore } from "../storage/local-file-store";
 
 export type CreateProductInput = Database["public"]["Tables"]["products"]["Insert"];
 export type UpdateProductInput = Database["public"]["Tables"]["products"]["Update"];
@@ -323,7 +324,13 @@ export const BASELINE_PRODUCTS: Product[] = [
 ];
 
 export class ProductRepository extends BaseRepository {
-  private inMemoryProducts: Product[] = [...BASELINE_PRODUCTS];
+  private getLocalProducts(): Product[] {
+    return localFileStore.get<Product[]>("products", BASELINE_PRODUCTS);
+  }
+
+  private saveLocalProducts(products: Product[]): void {
+    localFileStore.set("products", products);
+  }
 
   /**
    * Retrieves all publicly visible products (status = 'published' AND deleted_at IS NULL).
@@ -331,7 +338,7 @@ export class ProductRepository extends BaseRepository {
    */
   async listPublishedProducts(): Promise<Product[]> {
     if (!this.isConfigured) {
-      return this.inMemoryProducts
+      return this.getLocalProducts()
         .filter((p) => p.status === "published" && !p.deleted_at)
         .sort((a, b) => a.display_order - b.display_order);
     }
@@ -345,14 +352,14 @@ export class ProductRepository extends BaseRepository {
         .order("display_order", { ascending: true });
 
       if (error || !data || data.length === 0) {
-        return this.inMemoryProducts
+        return this.getLocalProducts()
           .filter((p) => p.status === "published" && !p.deleted_at)
           .sort((a, b) => a.display_order - b.display_order);
       }
 
       return data;
     } catch {
-      return this.inMemoryProducts
+      return this.getLocalProducts()
         .filter((p) => p.status === "published" && !p.deleted_at)
         .sort((a, b) => a.display_order - b.display_order);
     }
@@ -369,7 +376,7 @@ export class ProductRepository extends BaseRepository {
     const normalizedSlug = slug.trim().toLowerCase();
 
     if (!this.isConfigured) {
-      const match = this.inMemoryProducts.find(
+      const match = this.getLocalProducts().find(
         (p) => p.slug === normalizedSlug && !p.deleted_at
       );
       if (!match) return null;
@@ -391,8 +398,8 @@ export class ProductRepository extends BaseRepository {
       const { data, error } = await query.maybeSingle();
 
       if (error || !data) {
-        // Fallback to baseline
-        const match = this.inMemoryProducts.find(
+        // Fallback to baseline / local storage
+        const match = this.getLocalProducts().find(
           (p) => p.slug === normalizedSlug && !p.deleted_at
         );
         if (!match) return null;
@@ -402,7 +409,7 @@ export class ProductRepository extends BaseRepository {
 
       return data;
     } catch {
-      const match = this.inMemoryProducts.find(
+      const match = this.getLocalProducts().find(
         (p) => p.slug === normalizedSlug && !p.deleted_at
       );
       if (!match) return null;
@@ -416,7 +423,7 @@ export class ProductRepository extends BaseRepository {
    */
   async getProductById(id: string): Promise<Product | null> {
     if (!this.isConfigured) {
-      return this.inMemoryProducts.find((p) => p.id === id && !p.deleted_at) ?? null;
+      return this.getLocalProducts().find((p) => p.id === id && !p.deleted_at) ?? null;
     }
 
     try {
@@ -427,12 +434,12 @@ export class ProductRepository extends BaseRepository {
         .maybeSingle();
 
       if (error || !data) {
-        return this.inMemoryProducts.find((p) => p.id === id) ?? null;
+        return this.getLocalProducts().find((p) => p.id === id && !p.deleted_at) ?? null;
       }
 
       return data;
     } catch {
-      return this.inMemoryProducts.find((p) => p.id === id) ?? null;
+      return this.getLocalProducts().find((p) => p.id === id && !p.deleted_at) ?? null;
     }
   }
 
@@ -444,7 +451,7 @@ export class ProductRepository extends BaseRepository {
     offset?: number;
   } = {}): Promise<{ products: Product[]; total: number }> {
     if (!this.isConfigured) {
-      const active = this.inMemoryProducts.filter((p) => !p.deleted_at);
+      const active = this.getLocalProducts().filter((p) => !p.deleted_at);
       const sorted = active.sort((a, b) => a.display_order - b.display_order);
       const total = sorted.length;
       const offset = options.offset ?? 0;
@@ -472,7 +479,7 @@ export class ProductRepository extends BaseRepository {
       const { data, error, count } = await query;
 
       if (error || !data || data.length === 0) {
-        const active = this.inMemoryProducts.filter((p) => !p.deleted_at);
+        const active = this.getLocalProducts().filter((p) => !p.deleted_at);
         return { products: active, total: active.length };
       }
 
@@ -481,7 +488,7 @@ export class ProductRepository extends BaseRepository {
         total: count ?? data.length,
       };
     } catch {
-      const active = this.inMemoryProducts.filter((p) => !p.deleted_at);
+      const active = this.getLocalProducts().filter((p) => !p.deleted_at);
       return { products: active, total: active.length };
     }
   }
@@ -494,6 +501,7 @@ export class ProductRepository extends BaseRepository {
     adminId: string
   ): Promise<Product> {
     if (!this.isConfigured) {
+      const products = this.getLocalProducts();
       const created: Product = {
         ...input,
         id: `prod-${Date.now()}`,
@@ -503,13 +511,14 @@ export class ProductRepository extends BaseRepository {
         description_blocks: input.description_blocks ?? [],
         capabilities: input.capabilities ?? [],
         signature_module_content: input.signature_module_content ?? null,
-        display_order: input.display_order ?? this.inMemoryProducts.length + 1,
+        display_order: input.display_order ?? products.length + 1,
         created_by: adminId,
         updated_by: adminId,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       } as Product;
-      this.inMemoryProducts.push(created);
+      products.push(created);
+      this.saveLocalProducts(products);
       return created;
     }
 
@@ -546,20 +555,22 @@ export class ProductRepository extends BaseRepository {
     adminId: string
   ): Promise<Product> {
     if (!this.isConfigured) {
-      const idx = this.inMemoryProducts.findIndex((p) => p.id === id);
+      const products = this.getLocalProducts();
+      const idx = products.findIndex((p) => p.id === id);
       if (idx === -1) {
         throw new AppError("NOT_FOUND", "Product not found or update failed.", {
           status: 404,
         });
       }
-      const existing = this.inMemoryProducts[idx]!;
+      const existing = products[idx]!;
       const updated: Product = {
         ...existing,
         ...input,
         updated_by: adminId,
         updated_at: new Date().toISOString(),
       };
-      this.inMemoryProducts[idx] = updated;
+      products[idx] = updated;
+      this.saveLocalProducts(products);
       return updated;
     }
 
@@ -591,14 +602,16 @@ export class ProductRepository extends BaseRepository {
    */
   async deleteProduct(id: string, adminId: string): Promise<void> {
     if (!this.isConfigured) {
-      const idx = this.inMemoryProducts.findIndex((p) => p.id === id);
+      const products = this.getLocalProducts();
+      const idx = products.findIndex((p) => p.id === id);
       if (idx !== -1) {
-        const existing = this.inMemoryProducts[idx]!;
-        this.inMemoryProducts[idx] = {
+        const existing = products[idx]!;
+        products[idx] = {
           ...existing,
           deleted_at: new Date().toISOString(),
           updated_by: adminId,
         };
+        this.saveLocalProducts(products);
       }
       return;
     }

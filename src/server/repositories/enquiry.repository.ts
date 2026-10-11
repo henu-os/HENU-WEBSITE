@@ -8,12 +8,19 @@ import type {
   EnquiryInterestType,
 } from "@/types/domain";
 import { AppError } from "@/lib/errors";
+import { localFileStore } from "../storage/local-file-store";
 
 export type CreateEnquiryInput = Database["public"]["Tables"]["enquiries"]["Insert"];
 export type UpdateEnquiryInput = Database["public"]["Tables"]["enquiries"]["Update"];
 
 export class EnquiryRepository extends BaseRepository {
-  private inMemoryEnquiries: Enquiry[] = [];
+  private getLocalEnquiries(): Enquiry[] {
+    return localFileStore.get<Enquiry[]>("enquiries", []);
+  }
+
+  private saveLocalEnquiries(items: Enquiry[]): void {
+    localFileStore.set("enquiries", items);
+  }
 
   /**
    * Persists a validated enquiry into the database.
@@ -47,7 +54,9 @@ export class EnquiryRepository extends BaseRepository {
         created_at: payload.created_at,
         updated_at: payload.updated_at,
       };
-      this.inMemoryEnquiries.unshift(fallbackEnquiry);
+      const items = this.getLocalEnquiries();
+      items.unshift(fallbackEnquiry);
+      this.saveLocalEnquiries(items);
       return fallbackEnquiry;
     }
 
@@ -78,11 +87,15 @@ export class EnquiryRepository extends BaseRepository {
           created_at: payload.created_at,
           updated_at: payload.updated_at,
         };
-        this.inMemoryEnquiries.unshift(fallbackEnquiry);
+        const items = this.getLocalEnquiries();
+        items.unshift(fallbackEnquiry);
+        this.saveLocalEnquiries(items);
         return fallbackEnquiry;
       }
 
-      this.inMemoryEnquiries.unshift(data as Enquiry);
+      const items = this.getLocalEnquiries();
+      items.unshift(data as Enquiry);
+      this.saveLocalEnquiries(items);
       return data as Enquiry;
     } catch {
       const fallbackEnquiry: Enquiry = {
@@ -103,7 +116,9 @@ export class EnquiryRepository extends BaseRepository {
         created_at: payload.created_at,
         updated_at: payload.updated_at,
       };
-      this.inMemoryEnquiries.unshift(fallbackEnquiry);
+      const items = this.getLocalEnquiries();
+      items.unshift(fallbackEnquiry);
+      this.saveLocalEnquiries(items);
       return fallbackEnquiry;
     }
   }
@@ -122,7 +137,7 @@ export class EnquiryRepository extends BaseRepository {
     const thresholdTime = new Date(Date.now() - windowMinutes * 60 * 1000).toISOString();
 
     if (!this.isConfigured) {
-      const inMemoryMatch = this.inMemoryEnquiries.find(
+      const inMemoryMatch = this.getLocalEnquiries().find(
         (e) =>
           e.email.toLowerCase() === normalizedEmail &&
           e.message.trim() === normalizedMessage &&
@@ -145,10 +160,10 @@ export class EnquiryRepository extends BaseRepository {
         if (match) return match as Enquiry;
       }
     } catch {
-      // Fallback in-memory
+      // Fallback in-memory / local storage
     }
 
-    const inMemoryMatch = this.inMemoryEnquiries.find(
+    const inMemoryMatch = this.getLocalEnquiries().find(
       (e) =>
         e.email.toLowerCase() === normalizedEmail &&
         e.message.trim() === normalizedMessage &&
@@ -163,7 +178,7 @@ export class EnquiryRepository extends BaseRepository {
    */
   async getEnquiryById(id: string): Promise<Enquiry | null> {
     if (!this.isConfigured) {
-      const fallback = this.inMemoryEnquiries.find((e) => e.id === id);
+      const fallback = this.getLocalEnquiries().find((e) => e.id === id);
       return fallback ?? null;
     }
 
@@ -175,13 +190,13 @@ export class EnquiryRepository extends BaseRepository {
         .single();
 
       if (error || !data) {
-        const fallback = this.inMemoryEnquiries.find((e) => e.id === id);
+        const fallback = this.getLocalEnquiries().find((e) => e.id === id);
         return fallback ?? null;
       }
 
       return data as Enquiry;
     } catch {
-      const fallback = this.inMemoryEnquiries.find((e) => e.id === id);
+      const fallback = this.getLocalEnquiries().find((e) => e.id === id);
       return fallback ?? null;
     }
   }
@@ -268,10 +283,12 @@ export class EnquiryRepository extends BaseRepository {
         return this.updateFallback(id, payload);
       }
 
-      // Update in-memory copy as well
-      const idx = this.inMemoryEnquiries.findIndex((e) => e.id === id);
+      // Update local storage copy as well
+      const items = this.getLocalEnquiries();
+      const idx = items.findIndex((e) => e.id === id);
       if (idx !== -1) {
-        this.inMemoryEnquiries[idx] = data as Enquiry;
+        items[idx] = data as Enquiry;
+        this.saveLocalEnquiries(items);
       }
 
       return data as Enquiry;
@@ -317,7 +334,7 @@ export class EnquiryRepository extends BaseRepository {
     limit?: number;
     offset?: number;
   }): { enquiries: Enquiry[]; total: number } {
-    let filtered = [...this.inMemoryEnquiries];
+    let filtered = [...this.getLocalEnquiries()];
 
     if (options.status && options.status !== "all") {
       filtered = filtered.filter((e) => e.status === options.status);
@@ -353,18 +370,20 @@ export class EnquiryRepository extends BaseRepository {
   }
 
   private updateFallback(id: string, payload: UpdateEnquiryInput): Enquiry {
-    const idx = this.inMemoryEnquiries.findIndex((e) => e.id === id);
+    const items = this.getLocalEnquiries();
+    const idx = items.findIndex((e) => e.id === id);
     if (idx === -1) {
       throw new AppError("NOT_FOUND", `Enquiry with id ${id} not found.`);
     }
 
     const updated: Enquiry = {
-      ...this.inMemoryEnquiries[idx]!,
+      ...items[idx]!,
       ...payload,
       updated_at: new Date().toISOString(),
     } as Enquiry;
 
-    this.inMemoryEnquiries[idx] = updated;
+    items[idx] = updated;
+    this.saveLocalEnquiries(items);
     return updated;
   }
 }

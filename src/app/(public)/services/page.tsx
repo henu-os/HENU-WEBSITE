@@ -3,6 +3,7 @@ import { serviceService } from "@/server/services/service.service";
 import { Container, Section } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { ServiceIndexLedger } from "@/components/features/services/service-index-ledger";
+import { ServicesHeroHeadline } from "@/components/features/services/services-hero-headline";
 
 export const metadata: Metadata = {
   title: "Services // Architectural Catalogue — HENU",
@@ -34,9 +35,8 @@ export default async function ServicesPage() {
               </span>
             </div>
 
-            <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-ink-primary font-normal tracking-tight leading-[1.1]">
-              Architectural capabilities for high-conviction ventures.
-            </h1>
+            {/* Interactive Hero Headline with Colored Focal Phrase & Hover Flip */}
+            <ServicesHeroHeadline />
 
             <p className="text-lg sm:text-xl text-ink-secondary leading-relaxed font-sans max-w-3xl">
               We operate across deep software engineering, sovereign AI agent architectures,
@@ -45,21 +45,38 @@ export default async function ServicesPage() {
               awareness.
             </p>
 
-            {/* Quick Category Anchors if categories exist */}
+            {/* Quick Category Anchors if categories exist with distinctive color highlights */}
             {categoryGroups.length > 0 && (
               <nav aria-label="Service categories navigation" className="pt-4 flex flex-wrap gap-2 sm:gap-3">
                 <span className="font-mono text-xs uppercase tracking-wider text-ink-muted self-center mr-2">
                   Jump to:
                 </span>
-                {categoryGroups.map((group, index) => (
-                  <a
-                    key={group.category.id}
-                    href={`#category-${group.category.slug}`}
-                    className="font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded-full border border-border-default hover:border-ink-primary/40 bg-surface-secondary text-ink-secondary hover:text-ink-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus"
-                  >
-                    {String(index + 1).padStart(2, "0")} {group.category.name}
-                  </a>
-                ))}
+                {categoryGroups.map((group, index) => {
+                  const slug = group.category.slug.toLowerCase();
+                  let hoverClass = "hover:border-emerald-500/50 hover:bg-emerald-500/10 hover:text-emerald-700 dark:hover:text-emerald-300";
+                  let dotColor = "bg-emerald-500";
+                  if (slug.includes("intelligence") || index === 1) {
+                    hoverClass = "hover:border-indigo-500/50 hover:bg-indigo-500/10 hover:text-indigo-700 dark:hover:text-indigo-300";
+                    dotColor = "bg-indigo-500";
+                  } else if (slug.includes("brand") || index === 2) {
+                    hoverClass = "hover:border-amber-500/50 hover:bg-amber-500/10 hover:text-amber-700 dark:hover:text-amber-300";
+                    dotColor = "bg-amber-500";
+                  } else if (slug.includes("foundation") || index === 3) {
+                    hoverClass = "hover:border-sky-500/50 hover:bg-sky-500/10 hover:text-sky-700 dark:hover:text-sky-300";
+                    dotColor = "bg-sky-500";
+                  }
+
+                  return (
+                    <a
+                      key={group.category.id}
+                      href={`#category-${group.category.slug}`}
+                      className={`font-mono text-xs uppercase tracking-wider px-3 py-1.5 rounded-full border border-border-default/80 bg-surface-secondary/70 text-ink-secondary transition-all duration-200 flex items-center gap-1.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus ${hoverClass}`}
+                    >
+                      <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                      <span>{String(index + 1).padStart(2, "0")} {group.category.name}</span>
+                    </a>
+                  );
+                })}
               </nav>
             )}
           </div>

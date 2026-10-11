@@ -3,12 +3,19 @@ import { BaseRepository } from "./base.repository";
 import type { MediaAsset } from "@/types/domain";
 import type { Database } from "@/types/database";
 import { AppError } from "@/lib/errors";
+import { localFileStore } from "../storage/local-file-store";
 
 export type CreateMediaAssetInput = Database["public"]["Tables"]["media_assets"]["Insert"];
 export type UpdateMediaAssetInput = Database["public"]["Tables"]["media_assets"]["Update"];
 
 export class MediaRepository extends BaseRepository {
-  private inMemoryAssets: MediaAsset[] = [];
+  private getLocalAssets(): MediaAsset[] {
+    return localFileStore.get<MediaAsset[]>("media_assets", []);
+  }
+
+  private saveLocalAssets(assets: MediaAsset[]): void {
+    localFileStore.set("media_assets", assets);
+  }
 
   /**
    * Saves a newly uploaded and verified media asset record.
@@ -28,7 +35,9 @@ export class MediaRepository extends BaseRepository {
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
-      this.inMemoryAssets.unshift(asset);
+      const assets = this.getLocalAssets();
+      assets.unshift(asset);
+      this.saveLocalAssets(assets);
       return asset;
     }
 
@@ -53,7 +62,7 @@ export class MediaRepository extends BaseRepository {
    */
   async getMediaAssetById(id: string): Promise<MediaAsset | null> {
     if (!this.isConfigured) {
-      return this.inMemoryAssets.find((a) => a.id === id) ?? null;
+      return this.getLocalAssets().find((a) => a.id === id) ?? null;
     }
 
     const { data, error } = await this.serviceClient
@@ -80,11 +89,12 @@ export class MediaRepository extends BaseRepository {
     offset?: number;
   } = {}): Promise<{ assets: MediaAsset[]; total: number }> {
     if (!this.isConfigured) {
-      const total = this.inMemoryAssets.length;
+      const assets = this.getLocalAssets();
+      const total = assets.length;
       const offset = options.offset ?? 0;
       const limit = options.limit ?? 24;
       return {
-        assets: this.inMemoryAssets.slice(offset, offset + limit),
+        assets: assets.slice(offset, offset + limit),
         total,
       };
     }
@@ -125,16 +135,19 @@ export class MediaRepository extends BaseRepository {
     input: UpdateMediaAssetInput
   ): Promise<MediaAsset> {
     if (!this.isConfigured) {
-      const idx = this.inMemoryAssets.findIndex((a) => a.id === id);
+      const assets = this.getLocalAssets();
+      const idx = assets.findIndex((a) => a.id === id);
       if (idx === -1) {
         throw new AppError("NOT_FOUND", "Media asset not found or update failed.", { status: 404 });
       }
-      this.inMemoryAssets[idx] = {
-        ...this.inMemoryAssets[idx],
+      const updated = {
+        ...assets[idx],
         ...input,
         updated_at: new Date().toISOString(),
       } as MediaAsset;
-      return this.inMemoryAssets[idx];
+      assets[idx] = updated;
+      this.saveLocalAssets(assets);
+      return updated;
     }
 
     const { data, error } = await this.serviceClient
@@ -195,7 +208,8 @@ export class MediaRepository extends BaseRepository {
    */
   async deleteMediaAsset(id: string): Promise<void> {
     if (!this.isConfigured) {
-      this.inMemoryAssets = this.inMemoryAssets.filter((a) => a.id !== id);
+      const assets = this.getLocalAssets().filter((a) => a.id !== id);
+      this.saveLocalAssets(assets);
       return;
     }
 

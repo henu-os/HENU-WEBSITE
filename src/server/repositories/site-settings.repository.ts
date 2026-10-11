@@ -3,6 +3,7 @@ import { BaseRepository } from "./base.repository";
 import type { SiteSettings } from "@/types/domain";
 import type { Database } from "@/types/database";
 import { AppError } from "@/lib/errors";
+import { localFileStore } from "@/server/storage/local-file-store";
 
 export type UpdateSiteSettingsInput = Database["public"]["Tables"]["site_settings"]["Update"];
 
@@ -10,9 +11,9 @@ const DEFAULT_SITE_SETTINGS: SiteSettings = {
   id: "default",
   organization_name: "HENU",
   contact_email: "contact@henu.org",
-  calendly_url: "https://calendly.com",
+  calendly_url: "https://calendly.com/henuos",
   header_cta_label: "Contact Us",
-  footer_text: "© 2026 HENU. Technology, Product, Engineering & Creativity. All rights reserved.",
+  footer_text: "© 2025 HENU OS Pvt Ltd. All rights reserved.",
   social_links: null,
   seo_defaults: {
     title: "HENU — Technology, Product, Engineering & Creativity",
@@ -23,14 +24,12 @@ const DEFAULT_SITE_SETTINGS: SiteSettings = {
 };
 
 export class SiteSettingsRepository extends BaseRepository {
-  private inMemorySettings: SiteSettings = { ...DEFAULT_SITE_SETTINGS };
-
   /**
    * Retrieves global site settings. Falls back to verified default values if not yet configured.
    */
   async getSettings(): Promise<SiteSettings> {
     if (!this.isConfigured) {
-      return this.inMemorySettings;
+      return localFileStore.get("site_settings", DEFAULT_SITE_SETTINGS);
     }
 
     try {
@@ -41,13 +40,13 @@ export class SiteSettingsRepository extends BaseRepository {
         .single();
 
       if (error || !data) {
-        return this.inMemorySettings;
+        return localFileStore.get("site_settings", DEFAULT_SITE_SETTINGS);
       }
 
-      this.inMemorySettings = data as SiteSettings;
+      localFileStore.set("site_settings", data as SiteSettings);
       return data;
     } catch {
-      return this.inMemorySettings;
+      return localFileStore.get("site_settings", DEFAULT_SITE_SETTINGS);
     }
   }
 
@@ -65,11 +64,13 @@ export class SiteSettingsRepository extends BaseRepository {
     };
 
     if (!this.isConfigured) {
-      this.inMemorySettings = {
-        ...this.inMemorySettings,
+      const current = localFileStore.get("site_settings", DEFAULT_SITE_SETTINGS);
+      const updated: SiteSettings = {
+        ...current,
         ...payload,
       };
-      return this.inMemorySettings;
+      localFileStore.set("site_settings", updated);
+      return updated;
     }
 
     const { data, error } = await this.serviceClient
@@ -79,14 +80,16 @@ export class SiteSettingsRepository extends BaseRepository {
       .single();
 
     if (error || !data) {
-      this.inMemorySettings = {
-        ...this.inMemorySettings,
+      const current = localFileStore.get("site_settings", DEFAULT_SITE_SETTINGS);
+      const updated: SiteSettings = {
+        ...current,
         ...payload,
       };
-      return this.inMemorySettings;
+      localFileStore.set("site_settings", updated);
+      return updated;
     }
 
-    this.inMemorySettings = data as SiteSettings;
+    localFileStore.set("site_settings", data as SiteSettings);
     return data;
   }
 }

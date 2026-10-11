@@ -3,6 +3,7 @@ import { BaseRepository } from "./base.repository";
 import type { Service, ServiceCategory } from "@/types/domain";
 import type { Database } from "@/types/database";
 import { AppError } from "@/lib/errors";
+import { localFileStore } from "../storage/local-file-store";
 
 export type CreateServiceCategoryInput = Database["public"]["Tables"]["service_categories"]["Insert"];
 export type UpdateServiceCategoryInput = Database["public"]["Tables"]["service_categories"]["Update"];
@@ -532,8 +533,21 @@ export const BASELINE_SERVICES: Service[] = [
 ];
 
 export class ServiceRepository extends BaseRepository {
-  private inMemoryCategories: ServiceCategory[] = [...BASELINE_CATEGORIES];
-  private inMemoryServices: Service[] = [...BASELINE_SERVICES];
+  private getLocalCategories(): ServiceCategory[] {
+    return localFileStore.get<ServiceCategory[]>("service_categories", BASELINE_CATEGORIES);
+  }
+
+  private saveLocalCategories(categories: ServiceCategory[]): void {
+    localFileStore.set("service_categories", categories);
+  }
+
+  private getLocalServices(): Service[] {
+    return localFileStore.get<Service[]>("services", BASELINE_SERVICES);
+  }
+
+  private saveLocalServices(services: Service[]): void {
+    localFileStore.set("services", services);
+  }
 
   // ==========================================
   // CATEGORIES
@@ -544,7 +558,7 @@ export class ServiceRepository extends BaseRepository {
    */
   async listCategories(): Promise<ServiceCategory[]> {
     if (!this.isConfigured) {
-      return [...this.inMemoryCategories].sort((a, b) => a.display_order - b.display_order);
+      return [...this.getLocalCategories()].sort((a, b) => a.display_order - b.display_order);
     }
 
     try {
@@ -554,12 +568,12 @@ export class ServiceRepository extends BaseRepository {
         .order("display_order", { ascending: true });
 
       if (error || !data || data.length === 0) {
-        return [...this.inMemoryCategories].sort((a, b) => a.display_order - b.display_order);
+        return [...this.getLocalCategories()].sort((a, b) => a.display_order - b.display_order);
       }
 
       return data;
     } catch {
-      return [...this.inMemoryCategories].sort((a, b) => a.display_order - b.display_order);
+      return [...this.getLocalCategories()].sort((a, b) => a.display_order - b.display_order);
     }
   }
 
@@ -570,7 +584,7 @@ export class ServiceRepository extends BaseRepository {
     const normalized = slug.trim().toLowerCase();
 
     if (!this.isConfigured) {
-      return this.inMemoryCategories.find((c) => c.slug === normalized) || null;
+      return this.getLocalCategories().find((c) => c.slug === normalized) || null;
     }
 
     try {
@@ -581,12 +595,12 @@ export class ServiceRepository extends BaseRepository {
         .maybeSingle();
 
       if (error || !data) {
-        return this.inMemoryCategories.find((c) => c.slug === normalized) || null;
+        return this.getLocalCategories().find((c) => c.slug === normalized) || null;
       }
 
       return data;
     } catch {
-      return this.inMemoryCategories.find((c) => c.slug === normalized) || null;
+      return this.getLocalCategories().find((c) => c.slug === normalized) || null;
     }
   }
 
@@ -595,7 +609,7 @@ export class ServiceRepository extends BaseRepository {
    */
   async getCategoryById(id: string): Promise<ServiceCategory | null> {
     if (!this.isConfigured) {
-      return this.inMemoryCategories.find((c) => c.id === id) || null;
+      return this.getLocalCategories().find((c) => c.id === id) || null;
     }
 
     try {
@@ -606,12 +620,12 @@ export class ServiceRepository extends BaseRepository {
         .maybeSingle();
 
       if (error || !data) {
-        return this.inMemoryCategories.find((c) => c.id === id) || null;
+        return this.getLocalCategories().find((c) => c.id === id) || null;
       }
 
       return data;
     } catch {
-      return this.inMemoryCategories.find((c) => c.id === id) || null;
+      return this.getLocalCategories().find((c) => c.id === id) || null;
     }
   }
 
@@ -620,16 +634,18 @@ export class ServiceRepository extends BaseRepository {
    */
   async createCategory(input: CreateServiceCategoryInput): Promise<ServiceCategory> {
     if (!this.isConfigured) {
+      const cats = this.getLocalCategories();
       const created: ServiceCategory = {
         id: `cat-${Date.now()}`,
         slug: input.slug,
         name: input.name,
         description: input.description ?? null,
-        display_order: input.display_order ?? this.inMemoryCategories.length + 1,
+        display_order: input.display_order ?? cats.length + 1,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
-      this.inMemoryCategories.push(created);
+      cats.push(created);
+      this.saveLocalCategories(cats);
       return created;
     }
 
@@ -654,19 +670,21 @@ export class ServiceRepository extends BaseRepository {
    */
   async updateCategory(id: string, input: UpdateServiceCategoryInput): Promise<ServiceCategory> {
     if (!this.isConfigured) {
-      const idx = this.inMemoryCategories.findIndex((c) => c.id === id);
+      const cats = this.getLocalCategories();
+      const idx = cats.findIndex((c) => c.id === id);
       if (idx === -1) {
         throw new AppError("NOT_FOUND", `Failed to update service category ${id}.`, {
           status: 404,
         });
       }
-      const existing = this.inMemoryCategories[idx]!;
+      const existing = cats[idx]!;
       const updated: ServiceCategory = {
         ...existing,
         ...input,
         updated_at: new Date().toISOString(),
       };
-      this.inMemoryCategories[idx] = updated;
+      cats[idx] = updated;
+      this.saveLocalCategories(cats);
       return updated;
     }
 
@@ -695,7 +713,8 @@ export class ServiceRepository extends BaseRepository {
    */
   async deleteCategory(id: string): Promise<void> {
     if (!this.isConfigured) {
-      this.inMemoryCategories = this.inMemoryCategories.filter((c) => c.id !== id);
+      const cats = this.getLocalCategories().filter((c) => c.id !== id);
+      this.saveLocalCategories(cats);
       return;
     }
 
@@ -722,7 +741,7 @@ export class ServiceRepository extends BaseRepository {
    */
   async listPublishedServices(): Promise<Service[]> {
     if (!this.isConfigured) {
-      return this.inMemoryServices
+      return this.getLocalServices()
         .filter((s) => s.status === "published" && !s.deleted_at)
         .sort((a, b) => a.display_order - b.display_order);
     }
@@ -736,14 +755,14 @@ export class ServiceRepository extends BaseRepository {
         .order("display_order", { ascending: true });
 
       if (error || !data || data.length === 0) {
-        return this.inMemoryServices
+        return this.getLocalServices()
           .filter((s) => s.status === "published" && !s.deleted_at)
           .sort((a, b) => a.display_order - b.display_order);
       }
 
       return data;
     } catch {
-      return this.inMemoryServices
+      return this.getLocalServices()
         .filter((s) => s.status === "published" && !s.deleted_at)
         .sort((a, b) => a.display_order - b.display_order);
     }
@@ -781,7 +800,7 @@ export class ServiceRepository extends BaseRepository {
     const normalized = slug.trim().toLowerCase();
 
     if (!this.isConfigured) {
-      const match = this.inMemoryServices.find(
+      const match = this.getLocalServices().find(
         (s) => s.slug === normalized && !s.deleted_at
       );
       if (!match) return null;
@@ -803,7 +822,7 @@ export class ServiceRepository extends BaseRepository {
       const { data, error } = await query.maybeSingle();
 
       if (error || !data) {
-        const match = this.inMemoryServices.find(
+        const match = this.getLocalServices().find(
           (s) => s.slug === normalized && !s.deleted_at
         );
         if (!match) return null;
@@ -813,7 +832,7 @@ export class ServiceRepository extends BaseRepository {
 
       return data;
     } catch {
-      const match = this.inMemoryServices.find(
+      const match = this.getLocalServices().find(
         (s) => s.slug === normalized && !s.deleted_at
       );
       if (!match) return null;
@@ -827,7 +846,7 @@ export class ServiceRepository extends BaseRepository {
    */
   async getServiceById(id: string): Promise<Service | null> {
     if (!this.isConfigured) {
-      return this.inMemoryServices.find((s) => s.id === id && !s.deleted_at) || null;
+      return this.getLocalServices().find((s) => s.id === id && !s.deleted_at) || null;
     }
 
     try {
@@ -839,12 +858,12 @@ export class ServiceRepository extends BaseRepository {
         .maybeSingle();
 
       if (error || !data) {
-        return this.inMemoryServices.find((s) => s.id === id && !s.deleted_at) || null;
+        return this.getLocalServices().find((s) => s.id === id && !s.deleted_at) || null;
       }
 
       return data;
     } catch {
-      return this.inMemoryServices.find((s) => s.id === id && !s.deleted_at) || null;
+      return this.getLocalServices().find((s) => s.id === id && !s.deleted_at) || null;
     }
   }
 
@@ -853,7 +872,7 @@ export class ServiceRepository extends BaseRepository {
    */
   async listAllServices(options: { categoryId?: string; limit?: number; offset?: number } = {}) {
     if (!this.isConfigured) {
-      let filtered = this.inMemoryServices.filter((s) => !s.deleted_at);
+      let filtered = this.getLocalServices().filter((s) => !s.deleted_at);
       if (options.categoryId) {
         filtered = filtered.filter((s) => s.category_id === options.categoryId);
       }
@@ -885,7 +904,7 @@ export class ServiceRepository extends BaseRepository {
       const { data, error, count } = await query;
 
       if (error || !data) {
-        let filtered = this.inMemoryServices.filter((s) => !s.deleted_at);
+        let filtered = this.getLocalServices().filter((s) => !s.deleted_at);
         if (options.categoryId) {
           filtered = filtered.filter((s) => s.category_id === options.categoryId);
         }
@@ -900,7 +919,7 @@ export class ServiceRepository extends BaseRepository {
         total: count ?? data.length,
       };
     } catch {
-      let filtered = this.inMemoryServices.filter((s) => !s.deleted_at);
+      let filtered = this.getLocalServices().filter((s) => !s.deleted_at);
       if (options.categoryId) {
         filtered = filtered.filter((s) => s.category_id === options.categoryId);
       }
@@ -916,6 +935,7 @@ export class ServiceRepository extends BaseRepository {
    */
   async createService(input: CreateServiceInput, actorId?: string): Promise<Service> {
     if (!this.isConfigured) {
+      const services = this.getLocalServices();
       const created: Service = {
         ...input,
         id: `srv-${Date.now()}`,
@@ -928,13 +948,14 @@ export class ServiceRepository extends BaseRepository {
         solution_block: input.solution_block ?? null,
         outcome_block: input.outcome_block ?? null,
         faq_items: input.faq_items ?? [],
-        display_order: input.display_order ?? this.inMemoryServices.length + 1,
+        display_order: input.display_order ?? services.length + 1,
         created_by: actorId ?? null,
         updated_by: actorId ?? null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       } as Service;
-      this.inMemoryServices.push(created);
+      services.push(created);
+      this.saveLocalServices(services);
       return created;
     }
 
@@ -967,20 +988,22 @@ export class ServiceRepository extends BaseRepository {
     actorId?: string
   ): Promise<Service> {
     if (!this.isConfigured) {
-      const idx = this.inMemoryServices.findIndex((s) => s.id === id);
+      const services = this.getLocalServices();
+      const idx = services.findIndex((s) => s.id === id);
       if (idx === -1) {
         throw new AppError("NOT_FOUND", `Failed to update service ${id}.`, {
           status: 404,
         });
       }
-      const existing = this.inMemoryServices[idx]!;
+      const existing = services[idx]!;
       const updated: Service = {
         ...existing,
         ...input,
         updated_by: actorId ?? null,
         updated_at: new Date().toISOString(),
       };
-      this.inMemoryServices[idx] = updated;
+      services[idx] = updated;
+      this.saveLocalServices(services);
       return updated;
     }
 
@@ -1017,14 +1040,16 @@ export class ServiceRepository extends BaseRepository {
    */
   async deleteService(id: string, actorId?: string): Promise<void> {
     if (!this.isConfigured) {
-      const idx = this.inMemoryServices.findIndex((s) => s.id === id);
+      const services = this.getLocalServices();
+      const idx = services.findIndex((s) => s.id === id);
       if (idx !== -1) {
-        const existing = this.inMemoryServices[idx]!;
-        this.inMemoryServices[idx] = {
+        const existing = services[idx]!;
+        services[idx] = {
           ...existing,
           deleted_at: new Date().toISOString(),
           updated_by: actorId ?? null,
         };
+        this.saveLocalServices(services);
       }
       return;
     }

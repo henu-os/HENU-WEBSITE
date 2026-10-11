@@ -3,21 +3,28 @@ import { BaseRepository } from "./base.repository";
 import type { SlugRedirect } from "@/types/domain";
 import type { Database } from "@/types/database";
 import { AppError } from "@/lib/errors";
+import { localFileStore } from "../storage/local-file-store";
 
 export type CreateSlugRedirectInput = Database["public"]["Tables"]["slug_redirects"]["Insert"];
 
 export class SlugRedirectRepository extends BaseRepository {
+  private getLocalRedirects(): SlugRedirect[] {
+    return localFileStore.get<SlugRedirect[]>("slug_redirects", []);
+  }
+
+  private saveLocalRedirects(redirects: SlugRedirect[]): void {
+    localFileStore.set("slug_redirects", redirects);
+  }
+
   /**
    * Finds an existing redirect for a given entity type and old slug.
    */
-  private inMemoryRedirects: SlugRedirect[] = [];
-
   async findRedirect(
     oldSlug: string,
     entityType: "product" | "service" | "project"
   ): Promise<SlugRedirect | null> {
     if (!this.isConfigured) {
-      return this.inMemoryRedirects.find(
+      return this.getLocalRedirects().find(
         (r) => r.old_slug === oldSlug && r.entity_type === entityType
       ) ?? null;
     }
@@ -31,14 +38,14 @@ export class SlugRedirectRepository extends BaseRepository {
         .maybeSingle();
 
       if (error) {
-        return this.inMemoryRedirects.find(
+        return this.getLocalRedirects().find(
           (r) => r.old_slug === oldSlug && r.entity_type === entityType
         ) ?? null;
       }
 
       return data;
     } catch {
-      return this.inMemoryRedirects.find(
+      return this.getLocalRedirects().find(
         (r) => r.old_slug === oldSlug && r.entity_type === entityType
       ) ?? null;
     }
@@ -62,7 +69,9 @@ export class SlugRedirectRepository extends BaseRepository {
         new_slug: input.new_slug,
         created_at: new Date().toISOString(),
       };
-      this.inMemoryRedirects.push(fallbackRecord);
+      const redirects = this.getLocalRedirects();
+      redirects.push(fallbackRecord);
+      this.saveLocalRedirects(redirects);
       return fallbackRecord;
     }
 
@@ -77,7 +86,9 @@ export class SlugRedirectRepository extends BaseRepository {
         throw new Error(error?.message || "Failed database insert");
       }
 
-      this.inMemoryRedirects.push(data);
+      const redirects = this.getLocalRedirects();
+      redirects.push(data);
+      this.saveLocalRedirects(redirects);
       return data;
     } catch {
       const fallbackRecord: SlugRedirect = {
@@ -87,7 +98,9 @@ export class SlugRedirectRepository extends BaseRepository {
         new_slug: input.new_slug,
         created_at: new Date().toISOString(),
       };
-      this.inMemoryRedirects.push(fallbackRecord);
+      const redirects = this.getLocalRedirects();
+      redirects.push(fallbackRecord);
+      this.saveLocalRedirects(redirects);
       return fallbackRecord;
     }
   }

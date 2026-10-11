@@ -3,6 +3,7 @@ import Link from "next/link";
 import { productRepository } from "@/server/repositories/product.repository";
 import { serviceRepository } from "@/server/repositories/service.repository";
 import { portfolioRepository } from "@/server/repositories/portfolio.repository";
+import { quickBuyRepository } from "@/server/repositories/quick-buy.repository";
 import { enquiryRepository } from "@/server/repositories/enquiry.repository";
 import { auditLogRepository } from "@/server/repositories/audit-log.repository";
 import type { Product, Service, PortfolioProject, Enquiry, AuditLog } from "@/types/domain";
@@ -16,12 +17,14 @@ export default async function AdminDashboardPage() {
     { products },
     { services },
     { projects },
+    quickBuyItems,
     { enquiries },
     auditData,
   ] = await Promise.all([
     productRepository.listAllProducts(),
     serviceRepository.listAllServices(),
     portfolioRepository.listAllProjects(),
+    quickBuyRepository.getQuickBuyItems(),
     enquiryRepository.listEnquiries({ limit: 100 }),
     auditLogRepository.listLogs({ limit: 6 }),
   ]);
@@ -35,6 +38,10 @@ export default async function AdminDashboardPage() {
 
   const publishedProjects = projects.filter((p: PortfolioProject) => p.status === "published");
   const draftProjects = projects.filter((p: PortfolioProject) => p.status === "draft");
+
+  const activeQuickBuyLinks = quickBuyItems.filter(
+    (i) => i.paymentLink && i.paymentLink !== "#" && i.paymentLink.trim().length > 0
+  ).length;
 
   const newEnquiries = enquiries.filter((e: Enquiry) => e.status === "new");
   const inProgressEnquiries = enquiries.filter((e: Enquiry) => e.status === "in_progress");
@@ -133,22 +140,22 @@ export default async function AdminDashboardPage() {
           </div>
         </div>
 
-        {/* Portfolio */}
+        {/* Quick Buy */}
         <div className="p-6 rounded-xl border border-border-default bg-surface-primary shadow-xs">
           <div className="flex items-center justify-between mb-2">
             <span className="font-mono text-xs uppercase tracking-wider text-ink-muted">
-              Portfolio
+              Quick Buy
             </span>
             <svg className="w-4 h-4 text-ink-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
           </div>
           <p className="font-mono text-3xl font-bold text-ink-primary">
-            {publishedProjects.length}
+            {quickBuyItems.length}
           </p>
           <div className="mt-3 flex items-center justify-between text-xs text-ink-secondary">
-            <span>{draftProjects.length} in draft</span>
-            <Link href="/admin/portfolio" className="font-semibold text-accent-pine hover:underline">
+            <span>{activeQuickBuyLinks} links configured</span>
+            <Link href="/admin/quick-buy" className="font-semibold text-accent-pine hover:underline">
               Manage &rarr;
             </Link>
           </div>

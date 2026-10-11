@@ -7,6 +7,7 @@ import { EcosystemModel } from "@/components/features/ecosystem/ecosystem-model"
 import { Container, Section } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/link-button";
+import { ServiceInteractiveCard } from "@/components/features/services/service-interactive-card";
 
 export const revalidate = 3600;
 
@@ -209,38 +210,7 @@ export default async function HomePage() {
           {curatedServices.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {curatedServices.map((service) => (
-                <div
-                  key={service.id}
-                  className="rounded-xl border border-border-default bg-surface-primary p-6 flex flex-col justify-between hover:border-border-strong transition-colors"
-                >
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="font-mono text-xs uppercase tracking-wider text-ink-muted">
-                        {service.slug}
-                      </span>
-                      <Badge variant="outline" size="sm">
-                        Enterprise
-                      </Badge>
-                    </div>
-
-                    <h3 className="font-serif text-xl font-normal text-ink-primary">
-                      {service.name}
-                    </h3>
-
-                    <p className="text-sm text-ink-secondary leading-relaxed line-clamp-3">
-                      {service.summary}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-border-subtle flex items-center justify-between">
-                    <Link
-                      href={`/services/${service.slug}`}
-                      className="text-xs font-mono font-semibold text-accent-pine hover:underline inline-flex items-center gap-1.5"
-                    >
-                      Specifications &rarr;
-                    </Link>
-                  </div>
-                </div>
+                <ServiceInteractiveCard key={service.id} service={service} />
               ))}
             </div>
           ) : (

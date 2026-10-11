@@ -7,6 +7,7 @@ import type {
 } from "@/types/domain";
 import type { Database } from "@/types/database";
 import { AppError } from "@/lib/errors";
+import { localFileStore } from "../storage/local-file-store";
 
 export type CreatePortfolioProjectInput = Database["public"]["Tables"]["portfolio_projects"]["Insert"];
 export type UpdatePortfolioProjectInput = Database["public"]["Tables"]["portfolio_projects"]["Update"];
@@ -251,7 +252,17 @@ export const BASELINE_PORTFOLIO_PROJECTS: PortfolioProject[] = [
 ];
 
 export class PortfolioRepository extends BaseRepository {
-  private inMemoryProjects: PortfolioProject[] = [...BASELINE_PORTFOLIO_PROJECTS];
+  private getLocalProjects(): PortfolioProject[] {
+    const items = localFileStore.get<PortfolioProject[]>("portfolio_projects", BASELINE_PORTFOLIO_PROJECTS);
+    return items.map((p) => ({
+      ...p,
+      deleted_at: p.deleted_at ?? null,
+    }));
+  }
+
+  private saveLocalProjects(projects: PortfolioProject[]): void {
+    localFileStore.set("portfolio_projects", projects);
+  }
 
   /**
    * Retrieves all published, non-deleted portfolio projects with granted client permission.
@@ -288,7 +299,7 @@ export class PortfolioRepository extends BaseRepository {
   }
 
   private getFallbackPublishedProjects(categorySlug?: string): PortfolioProject[] {
-    let filtered = this.inMemoryProjects.filter(
+    let filtered = this.getLocalProjects().filter(
       (p) =>
         p.status === "published" &&
         !p.deleted_at &&
@@ -346,7 +357,7 @@ export class PortfolioRepository extends BaseRepository {
     slug: string,
     allowDraft: boolean
   ): PortfolioProject | null {
-    const project = this.inMemoryProjects.find(
+    const project = this.getLocalProjects().find(
       (p) => p.slug === slug && !p.deleted_at
     );
 
@@ -366,7 +377,7 @@ export class PortfolioRepository extends BaseRepository {
    */
   async getProjectById(id: string): Promise<PortfolioProject | null> {
     if (!this.isConfigured) {
-      const fallback = this.inMemoryProjects.find((p) => p.id === id);
+      const fallback = this.getLocalProjects().find((p) => p.id === id);
       return fallback || null;
     }
 
@@ -378,13 +389,13 @@ export class PortfolioRepository extends BaseRepository {
         .single();
 
       if (error || !data) {
-        const fallback = this.inMemoryProjects.find((p) => p.id === id);
+        const fallback = this.getLocalProjects().find((p) => p.id === id);
         return fallback || null;
       }
 
       return data as PortfolioProject;
     } catch {
-      const fallback = this.inMemoryProjects.find((p) => p.id === id);
+      const fallback = this.getLocalProjects().find((p) => p.id === id);
       return fallback || null;
     }
   }
@@ -449,7 +460,7 @@ export class PortfolioRepository extends BaseRepository {
     page?: number;
     limit?: number;
   }): { projects: PortfolioProject[]; total: number } {
-    let filtered = this.inMemoryProjects.filter((p) => !p.deleted_at);
+    let filtered = this.getLocalProjects().filter((p) => !p.deleted_at);
 
     if (options?.status && options.status !== "all") {
       filtered = filtered.filter((p) => p.status === options.status);
@@ -486,6 +497,7 @@ export class PortfolioRepository extends BaseRepository {
    */
   async createProject(data: CreatePortfolioProjectInput): Promise<PortfolioProject> {
     if (!this.isConfigured) {
+      const projects = this.getLocalProjects();
       const created: PortfolioProject = {
         ...data,
         id: `prj-${Date.now()}`,
@@ -493,11 +505,13 @@ export class PortfolioRepository extends BaseRepository {
         project_status: data.project_status || "in_development",
         is_featured: data.is_featured || false,
         client_permission_status: data.client_permission_status || "pending",
-        display_order: data.display_order || this.inMemoryProjects.length + 1,
+        display_order: data.display_order || projects.length + 1,
+        deleted_at: data.deleted_at ?? null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       } as PortfolioProject;
-      this.inMemoryProjects.push(created);
+      projects.push(created);
+      this.saveLocalProjects(projects);
       return created;
     }
 
@@ -527,17 +541,19 @@ export class PortfolioRepository extends BaseRepository {
     data: UpdatePortfolioProjectInput
   ): Promise<PortfolioProject> {
     if (!this.isConfigured) {
-      const idx = this.inMemoryProjects.findIndex((p) => p.id === id);
+      const projects = this.getLocalProjects();
+      const idx = projects.findIndex((p) => p.id === id);
       if (idx === -1) {
         throw new AppError("NOT_FOUND", `Portfolio project ${id} not found`, { status: 404 });
       }
-      const existing = this.inMemoryProjects[idx]!;
+      const existing = projects[idx]!;
       const updated: PortfolioProject = {
         ...existing,
         ...data,
         updated_at: new Date().toISOString(),
       } as PortfolioProject;
-      this.inMemoryProjects[idx] = updated;
+      projects[idx] = updated;
+      this.saveLocalProjects(projects);
       return updated;
     }
 
@@ -568,16 +584,18 @@ export class PortfolioRepository extends BaseRepository {
    */
   async softDeleteProject(id: string, updatedBy?: string): Promise<void> {
     if (!this.isConfigured) {
-      const idx = this.inMemoryProjects.findIndex((p) => p.id === id);
+      const projects = this.getLocalProjects();
+      const idx = projects.findIndex((p) => p.id === id);
       if (idx !== -1) {
-        const existing = this.inMemoryProjects[idx]!;
-        this.inMemoryProjects[idx] = {
+        const existing = projects[idx]!;
+        projects[idx] = {
           ...existing,
           deleted_at: new Date().toISOString(),
           status: "archived",
           updated_by: updatedBy || null,
           updated_at: new Date().toISOString(),
         };
+        this.saveLocalProjects(projects);
       }
       return;
     }
@@ -607,10 +625,12 @@ export class PortfolioRepository extends BaseRepository {
    */
   async reorderProjects(orderedIds: string[]): Promise<void> {
     if (!this.isConfigured) {
+      const projects = this.getLocalProjects();
       orderedIds.forEach((id, index) => {
-        const p = this.inMemoryProjects.find((item) => item.id === id);
+        const p = projects.find((item) => item.id === id);
         if (p) p.display_order = index + 1;
       });
+      this.saveLocalProjects(projects);
       return;
     }
 

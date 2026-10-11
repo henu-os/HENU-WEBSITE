@@ -17,11 +17,17 @@ export const siteConfig = {
   links: {
     calendly: "https://calendly.com/henuos",
   },
+  contact: {
+    name: "HENU OS Pvt Ltd",
+    phone: "+91 80 4567 8900",
+    email: "contact@henu.org",
+    address: "Bengaluru, Karnataka, India",
+  },
   primaryNavigation: [
     { label: "Home", href: "/" },
     { label: "Services", href: "/services" },
     { label: "Products", href: "/products" },
-    { label: "Portfolio", href: "/portfolio" },
+    { label: "Quick Buy", href: "/quick-buy" },
     { label: "About Us", href: "/about" },
     { label: "Contact Us", href: "/contact" },
   ] as const,

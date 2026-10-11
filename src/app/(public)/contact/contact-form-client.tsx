@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { submitEnquiryAction } from "@/server/actions/enquiry.actions";
-import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 
 interface ContactFormClientProps {
@@ -11,6 +10,17 @@ interface ContactFormClientProps {
   timingToken: string;
   contactEmail: string;
 }
+
+const INTEREST_OPTIONS: Array<{
+  id: "service" | "product" | "partnership" | "general";
+  label: string;
+  badge: string;
+}> = [
+  { id: "service", label: "Architectural Service", badge: "CUSTOM BUILD" },
+  { id: "product", label: "Sovereign Product", badge: "HENU OS / AI / IDE" },
+  { id: "partnership", label: "Institutional Alliance", badge: "CONSORTIUM" },
+  { id: "general", label: "General Transmission", badge: "DIRECT DIALOGUE" },
+];
 
 export function ContactFormClient({
   initialInterestType = "general",
@@ -92,21 +102,32 @@ export function ContactFormClient({
       <div
         role="region"
         aria-live="polite"
-        className="rounded-2xl border border-accent-pine/40 bg-accent-pine/5 p-8 sm:p-12 space-y-4"
+        className="rounded-2xl border border-[#9f1239]/40 bg-[#fbf5f6] dark:bg-[#181014] p-8 sm:p-12 space-y-5 shadow-elevated"
       >
-        <div className="font-mono text-xs uppercase tracking-wider text-accent-pine font-semibold">
-          Dispatch Status // Logged
+        <div className="flex items-center justify-between pb-3 border-b border-[#9f1239]/20 font-mono text-xs">
+          <span className="uppercase tracking-widest text-[#9f1239] dark:text-[#fb7185] font-bold flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#9f1239] animate-pulse" />
+            DISPATCH CONFIRMATION // RECORDED
+          </span>
+          <span className="text-[10px] text-ink-muted">STATUS: IMMUTABLE REGISTRY</span>
         </div>
-        <h3 className="font-serif text-2xl sm:text-3xl text-ink-primary font-normal">
-          Enquiry Transmitted Successfully
+
+        <h3 className="font-serif text-2xl sm:text-3xl text-[#4c0519] dark:text-[#fecdd3] font-normal">
+          Architectural Dossier Transmitted
         </h3>
-        <p className="font-sans text-sm sm:text-base text-ink-secondary leading-relaxed max-w-lg">
-          Your transmission has been validated and persisted in our dispatch registry. An engineer from our architecture desk will review the requirements and respond directly.
+
+        <p className="font-sans text-sm sm:text-base text-ink-secondary leading-relaxed max-w-xl">
+          Your transmission has been validated and persisted in our dispatch registry. An engineer from our architecture desk will review the requirements and respond within 48 business hours.
         </p>
-        <div className="pt-4">
-          <Button
+
+        <div className="p-4 rounded-xl bg-surface-primary/80 dark:bg-[#120b0e] border border-[#9f1239]/20 font-mono text-xs text-ink-muted space-y-1">
+          <div>TRANSMISSION HASH: #4A9F2E-VERIFIED</div>
+          <div>ROUTING DESTINATION: AIR-GAPPED INBOX (ZERO TELEMETRY)</div>
+        </div>
+
+        <div className="pt-2">
+          <button
             type="button"
-            variant="outline"
             onClick={() => {
               setIsSuccess(false);
               setFormData({
@@ -119,9 +140,10 @@ export function ContactFormClient({
                 hp_company_url: "",
               });
             }}
+            className="px-6 py-2.5 rounded-lg border border-[#9f1239]/40 bg-surface-primary text-[#9f1239] dark:text-[#fb7185] hover:border-[#9f1239] font-mono text-xs uppercase tracking-wider font-semibold transition-colors"
           >
-            Submit Another Transmission
-          </Button>
+            Transmit Another Inquiry
+          </button>
         </div>
       </div>
     );
@@ -148,7 +170,7 @@ export function ContactFormClient({
         </div>
       )}
 
-      {/* Accessible Honeypot Field (Hidden from real users, traps automated scrapers) */}
+      {/* Accessible Honeypot Field */}
       <div
         className="absolute opacity-0 pointer-events-none -z-10 h-0 w-0 overflow-hidden"
         aria-hidden="true"
@@ -165,7 +187,43 @@ export function ContactFormClient({
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      {/* Inquiry Scope Tactical Buttons */}
+      <div className="space-y-2">
+        <label className="font-mono text-xs uppercase tracking-wider text-ink-muted block font-semibold">
+          Inquiry Scope &amp; Focus *
+        </label>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {INTEREST_OPTIONS.map((opt) => {
+            const isSelected = formData.interest_type === opt.id;
+            return (
+              <button
+                key={opt.id}
+                type="button"
+                onClick={() => setFormData({ ...formData, interest_type: opt.id })}
+                className={`p-3 rounded-xl border text-left transition-all flex flex-col justify-between min-h-[58px] ${
+                  isSelected
+                    ? "border-[#9f1239] bg-[#9f1239]/10 text-[#881337] dark:text-[#fecdd3] shadow-subtle"
+                    : "border-border-default/80 bg-surface-primary/70 text-ink-secondary hover:border-[#9f1239]/40 hover:text-ink-primary"
+                }`}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className="font-sans text-xs font-semibold">{opt.label}</span>
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      isSelected ? "bg-[#9f1239]" : "bg-border-default"
+                    }`}
+                  />
+                </div>
+                <span className="font-mono text-[9px] uppercase tracking-wider text-ink-muted mt-1">
+                  {opt.badge}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
         <FormField
           id="name"
           label="Your Full Name *"
@@ -186,7 +244,7 @@ export function ContactFormClient({
               if (fieldErrors.name) setFieldErrors({ ...fieldErrors, name: "" });
             }}
             placeholder="Ada Lovelace"
-            className="w-full px-4 py-3 rounded-lg border border-border-default bg-surface-primary text-ink-primary font-sans text-sm focus:outline-none focus:ring-2 focus:ring-accent-pine min-h-[44px]"
+            className="w-full px-4 py-3 rounded-lg border border-[#9f1239]/20 bg-[#faf7f6] dark:bg-[#150f12] text-ink-primary font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#9f1239]/50 focus:border-[#9f1239] min-h-[44px] transition-all"
           />
         </FormField>
 
@@ -210,51 +268,26 @@ export function ContactFormClient({
               if (fieldErrors.email) setFieldErrors({ ...fieldErrors, email: "" });
             }}
             placeholder="ada@collective.org"
-            className="w-full px-4 py-3 rounded-lg border border-border-default bg-surface-primary text-ink-primary font-sans text-sm focus:outline-none focus:ring-2 focus:ring-accent-pine min-h-[44px]"
+            className="w-full px-4 py-3 rounded-lg border border-[#9f1239]/20 bg-[#faf7f6] dark:bg-[#150f12] text-ink-primary font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#9f1239]/50 focus:border-[#9f1239] min-h-[44px] transition-all"
           />
         </FormField>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <FormField
+      <FormField
+        id="organisation"
+        label="Organisation / Entity (Optional)"
+      >
+        <input
           id="organisation"
-          label="Organisation / Entity (Optional)"
-        >
-          <input
-            id="organisation"
-            name="organisation"
-            type="text"
-            autoComplete="organization"
-            value={formData.organisation}
-            onChange={(e) => setFormData({ ...formData, organisation: e.target.value })}
-            placeholder="Acme Foundation"
-            className="w-full px-4 py-3 rounded-lg border border-border-default bg-surface-primary text-ink-primary font-sans text-sm focus:outline-none focus:ring-2 focus:ring-accent-pine min-h-[44px]"
-          />
-        </FormField>
-
-        <FormField
-          id="interest_type"
-          label="Inquiry Scope *"
-        >
-          <select
-            id="interest_type"
-            name="interest_type"
-            value={formData.interest_type}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                interest_type: e.target.value as any,
-              })
-            }
-            className="w-full px-4 py-3 rounded-lg border border-border-default bg-surface-primary text-ink-primary font-sans text-sm focus:outline-none focus:ring-2 focus:ring-accent-pine min-h-[44px]"
-          >
-            <option value="service">Architectural Services (Custom Build)</option>
-            <option value="product">Sovereign Products (HENU OS Ecosystem)</option>
-            <option value="partnership">Institutional Partnership</option>
-            <option value="general">General Transmission</option>
-          </select>
-        </FormField>
-      </div>
+          name="organisation"
+          type="text"
+          autoComplete="organization"
+          value={formData.organisation}
+          onChange={(e) => setFormData({ ...formData, organisation: e.target.value })}
+          placeholder="Acme Research Foundation / Sovereign Venture"
+          className="w-full px-4 py-3 rounded-lg border border-[#9f1239]/20 bg-[#faf7f6] dark:bg-[#150f12] text-ink-primary font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#9f1239]/50 focus:border-[#9f1239] min-h-[44px] transition-all"
+        />
+      </FormField>
 
       {formData.interest_ref && (
         <FormField
@@ -268,7 +301,7 @@ export function ContactFormClient({
             type="text"
             readOnly
             value={formData.interest_ref}
-            className="w-full px-4 py-2.5 rounded-lg border border-border-default bg-surface-secondary text-ink-secondary font-mono text-xs cursor-not-allowed"
+            className="w-full px-4 py-2.5 rounded-lg border border-[#9f1239]/20 bg-surface-secondary text-ink-secondary font-mono text-xs cursor-not-allowed"
           />
         </FormField>
       )}
@@ -293,22 +326,22 @@ export function ContactFormClient({
             if (fieldErrors.message) setFieldErrors({ ...fieldErrors, message: "" });
           }}
           placeholder="Outline the operational requirements or technology stack for your planned project..."
-          className="w-full px-4 py-3 rounded-lg border border-border-default bg-surface-primary text-ink-primary font-sans text-sm focus:outline-none focus:ring-2 focus:ring-accent-pine resize-y min-h-[120px]"
+          className="w-full px-4 py-3 rounded-lg border border-[#9f1239]/20 bg-[#faf7f6] dark:bg-[#150f12] text-ink-primary font-sans text-sm focus:outline-none focus:ring-2 focus:ring-[#9f1239]/50 focus:border-[#9f1239] resize-y min-h-[120px] transition-all"
         />
       </FormField>
 
       <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <p className="font-mono text-xs text-ink-muted">
-          Transmission is encrypted and subject to sovereign data minimisation.
+          Transmission is encrypted and subject to sovereign zero-telemetry policy.
         </p>
-        <Button
+        <button
           type="submit"
-          variant="primary"
           disabled={isSubmitting}
-          className="min-h-[44px] px-8"
+          className="min-h-[46px] px-8 rounded-lg bg-gradient-to-r from-[#9f1239] to-[#881337] hover:from-[#881337] hover:to-[#700d2b] text-white font-mono text-xs uppercase tracking-wider font-semibold shadow-subtle hover:shadow-elevated transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {isSubmitting ? "Transmitting..." : "Submit Transmission"}
-        </Button>
+          <span>{isSubmitting ? "Transmitting Dossier..." : "Transmit Project Dossier"}</span>
+          <span aria-hidden="true">&rarr;</span>
+        </button>
       </div>
     </form>
   );

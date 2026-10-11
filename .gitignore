@@ -28,6 +28,7 @@ yarn-error.log*
 .env
 !.env.example
 force-ipv4.cjs
+/.data/
 
 # vercel
 .vercel

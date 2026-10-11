@@ -17,7 +17,7 @@ const ADMIN_NAV_ITEMS: AdminNavItem[] = [
   { label: "About", href: "/admin/about" },
   { label: "Products", href: "/admin/products" },
   { label: "Services", href: "/admin/services" },
-  { label: "Portfolio", href: "/admin/portfolio" },
+  { label: "Quick Buy", href: "/admin/quick-buy" },
   { label: "Home Opening", href: "/admin/home" },
   { label: "Media Library", href: "/admin/media" },
   { label: "Site Settings", href: "/admin/settings" },
