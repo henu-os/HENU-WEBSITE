@@ -568,6 +568,7 @@ export interface Database {
           id: "default";
           vision_statement: string;
           mission_statement: string;
+          hero_image_url?: string | null;
           chapters: Json | null;
           timeline_entries: Json | null;
           updated_by: string | null;
@@ -577,6 +578,7 @@ export interface Database {
           id?: "default";
           vision_statement: string;
           mission_statement: string;
+          hero_image_url?: string | null;
           chapters?: Json | null;
           timeline_entries?: Json | null;
           updated_by?: string | null;
@@ -586,6 +588,7 @@ export interface Database {
           id?: "default";
           vision_statement?: string;
           mission_statement?: string;
+          hero_image_url?: string | null;
           chapters?: Json | null;
           timeline_entries?: Json | null;
           updated_by?: string | null;

@@ -22,7 +22,7 @@ const PILLARS = [
     code: "SOV-RES",
     title: "Architectural Restraint",
     desc: "We refuse ephemeral frontend churn, bloated consulting theatre, and surveillance-driven nudges. We design software with the timeless sobriety of classical stone architecture.",
-    metric: "20+ YEAR HORIZON",
+    metric: "TIMELESS CRAFTSMANSHIP",
   },
   {
     num: "IV",

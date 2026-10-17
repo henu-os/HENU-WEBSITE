@@ -26,9 +26,10 @@ export function AboutEditorClient({ initialContent }: AboutEditorClientProps) {
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
-  // Vision & Mission local state
+  // Vision & Mission & Hero Image local state
   const [visionStatement, setVisionStatement] = useState(content.vision_statement);
   const [missionStatement, setMissionStatement] = useState(content.mission_statement);
+  const [heroImageUrl, setHeroImageUrl] = useState(content.hero_image_url || "");
 
   // Chapter Modal / Form state
   const [showChapterForm, setShowChapterForm] = useState(false);
@@ -40,6 +41,10 @@ export function AboutEditorClient({ initialContent }: AboutEditorClientProps) {
     content: "",
     tags: "",
     status: "published" as "published" | "draft",
+    button_label: "",
+    button_url: "",
+    ecosystem_anchor: "",
+    architectural_pillar: "",
   });
 
   // Timeline Modal / Form state
@@ -63,7 +68,7 @@ export function AboutEditorClient({ initialContent }: AboutEditorClientProps) {
     ? content.timeline_entries
     : []) as unknown as TimelineEntry[];
 
-  // --- 1. Vision & Mission Save ---
+  // --- 1. Vision & Mission & Hero Image Save ---
   const handleSaveVisionMission = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
@@ -72,12 +77,13 @@ export function AboutEditorClient({ initialContent }: AboutEditorClientProps) {
     const res = await updateVisionMissionAction({
       vision_statement: visionStatement,
       mission_statement: missionStatement,
+      hero_image_url: heroImageUrl,
     });
 
     setIsSaving(false);
     if (res.success && res.data) {
       setContent(res.data);
-      setMessage({ text: "Vision & Mission statements updated.", type: "success" });
+      setMessage({ text: "Vision, Mission, and Hero Image updated successfully.", type: "success" });
     } else {
       setMessage({ text: res.error ?? "Failed to save vision and mission.", type: "error" });
     }
@@ -93,6 +99,10 @@ export function AboutEditorClient({ initialContent }: AboutEditorClientProps) {
       content: "",
       tags: "",
       status: "published",
+      button_label: "Explore Product →",
+      button_url: "/products",
+      ecosystem_anchor: "",
+      architectural_pillar: "",
     });
     setShowChapterForm(true);
   };
@@ -106,6 +116,10 @@ export function AboutEditorClient({ initialContent }: AboutEditorClientProps) {
       content: chap.content,
       tags: (chap.tags || []).join(", "),
       status: chap.status,
+      button_label: chap.button_label || "",
+      button_url: chap.button_url || "",
+      ecosystem_anchor: chap.ecosystem_anchor || "",
+      architectural_pillar: chap.architectural_pillar || "",
     });
     setShowChapterForm(true);
   };
@@ -127,6 +141,10 @@ export function AboutEditorClient({ initialContent }: AboutEditorClientProps) {
       content: chapterForm.content,
       tags: tagsArray,
       status: chapterForm.status,
+      button_label: chapterForm.button_label || undefined,
+      button_url: chapterForm.button_url || undefined,
+      ecosystem_anchor: chapterForm.ecosystem_anchor || undefined,
+      architectural_pillar: chapterForm.architectural_pillar || undefined,
     };
 
     let res;
@@ -330,9 +348,83 @@ export function AboutEditorClient({ initialContent }: AboutEditorClientProps) {
             />
           </FormField>
 
+          <FormField
+            id="hero_image_url"
+            label="About Hero Section Right-Side Image URL"
+            hint="Displays on the right side of the About page hero section. Enter an image path or choose a preset."
+          >
+            <div className="space-y-3">
+              <input
+                id="hero_image_url"
+                name="hero_image_url"
+                type="text"
+                value={heroImageUrl}
+                onChange={(e) => setHeroImageUrl(e.target.value)}
+                placeholder="/brand/henu-dragon.png or /brand/henu-os.png or https://..."
+                className="w-full px-4 py-2.5 rounded-lg border border-border-default bg-surface-primary text-ink-primary font-sans text-sm focus:outline-none focus:ring-2 focus:ring-accent-pine min-h-[44px]"
+              />
+
+              {/* Quick Presets */}
+              <div className="flex flex-wrap items-center gap-2 text-xs font-mono">
+                <span className="text-ink-muted">Quick Assets:</span>
+                <button
+                  type="button"
+                  onClick={() => setHeroImageUrl("/brand/henu-dragon.png")}
+                  className="px-2.5 py-1 rounded bg-surface-secondary border border-border-default hover:border-accent-pine text-ink-secondary hover:text-ink-primary"
+                >
+                  HENU Dragon
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHeroImageUrl("/brand/henu-os.png")}
+                  className="px-2.5 py-1 rounded bg-surface-secondary border border-border-default hover:border-accent-pine text-ink-secondary hover:text-ink-primary"
+                >
+                  HENU OS Emblem
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHeroImageUrl("/brand/henu-ai.png")}
+                  className="px-2.5 py-1 rounded bg-surface-secondary border border-border-default hover:border-accent-pine text-ink-secondary hover:text-ink-primary"
+                >
+                  HENU AI Glyph
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setHeroImageUrl("")}
+                  className="px-2 py-1 rounded text-red-600 dark:text-red-400 hover:underline"
+                >
+                  Clear (Default)
+                </button>
+              </div>
+
+              {/* Live Preview Thumbnail */}
+              {heroImageUrl && (
+                <div className="p-3 rounded-lg border border-border-default bg-surface-secondary/40 flex items-center gap-4">
+                  <div className="relative w-16 h-16 rounded-md overflow-hidden border border-border-default bg-surface-primary flex items-center justify-center shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={heroImageUrl}
+                      alt="Hero preview"
+                      className="w-full h-full object-contain p-1"
+                      onError={(e) => {
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  </div>
+                  <div className="text-xs font-mono">
+                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold block">
+                      Image Active
+                    </span>
+                    <span className="text-ink-muted break-all">{heroImageUrl}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </FormField>
+
           <div className="pt-2">
             <Button type="submit" variant="primary" disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save Statements"}
+              {isSaving ? "Saving..." : "Save Statements & Hero Image"}
             </Button>
           </div>
         </form>
@@ -506,6 +598,57 @@ export function AboutEditorClient({ initialContent }: AboutEditorClientProps) {
                   className="w-full px-3 py-2 rounded-lg border border-border-default bg-surface-primary text-ink-primary text-sm min-h-[44px]"
                 />
               </FormField>
+
+              {/* Product CTA Button & Link Configuration */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl border border-accent-pine/20 bg-surface-secondary/40">
+                <FormField id="chap_btn_label" label="Action Button Label">
+                  <input
+                    id="chap_btn_label"
+                    value={chapterForm.button_label}
+                    onChange={(e) =>
+                      setChapterForm({ ...chapterForm, button_label: e.target.value })
+                    }
+                    placeholder="e.g. Explore HENU OS →"
+                    className="w-full px-3 py-2 rounded-lg border border-border-default bg-surface-primary text-ink-primary text-sm min-h-[44px]"
+                  />
+                </FormField>
+
+                <FormField id="chap_btn_url" label="Action Button Target Link URL">
+                  <input
+                    id="chap_btn_url"
+                    value={chapterForm.button_url}
+                    onChange={(e) =>
+                      setChapterForm({ ...chapterForm, button_url: e.target.value })
+                    }
+                    placeholder="e.g. /products/henu-os"
+                    className="w-full px-3 py-2 rounded-lg border border-border-default bg-surface-primary text-ink-primary text-sm min-h-[44px]"
+                  />
+                </FormField>
+
+                <FormField id="chap_anchor" label="Ecosystem Anchor (e.g. HENU OS Base Layer)">
+                  <input
+                    id="chap_anchor"
+                    value={chapterForm.ecosystem_anchor}
+                    onChange={(e) =>
+                      setChapterForm({ ...chapterForm, ecosystem_anchor: e.target.value })
+                    }
+                    placeholder="HENU OS Base Layer"
+                    className="w-full px-3 py-2 rounded-lg border border-border-default bg-surface-primary text-ink-primary text-sm min-h-[44px]"
+                  />
+                </FormField>
+
+                <FormField id="chap_pillar" label="Architectural Pillar (e.g. Zero Telemetry)">
+                  <input
+                    id="chap_pillar"
+                    value={chapterForm.architectural_pillar}
+                    onChange={(e) =>
+                      setChapterForm({ ...chapterForm, architectural_pillar: e.target.value })
+                    }
+                    placeholder="Zero Third-Party Telemetry & Isolated Memory"
+                    className="w-full px-3 py-2 rounded-lg border border-border-default bg-surface-primary text-ink-primary text-sm min-h-[44px]"
+                  />
+                </FormField>
+              </div>
 
               <FormField id="chap_content" label="Chapter Narrative Body *">
                 <textarea

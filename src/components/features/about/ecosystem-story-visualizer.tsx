@@ -1,62 +1,83 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import type { AboutChapter } from "@/types/domain";
 
-interface StoryChapter {
+interface StoryChapterItem {
   id: string;
   number: string;
+  tabLabel: string;
   tag: string;
   title: string;
   summary: string;
   ecosystemAnchor: string;
   architecturalPillar: string;
+  buttonLabel?: string | null;
+  buttonUrl?: string | null;
 }
 
-const STORY_CHAPTERS: StoryChapter[] = [
+const DEFAULT_STORY_CHAPTERS: StoryChapterItem[] = [
   {
-    id: "kernel",
+    id: "henu-os",
     number: "01",
-    tag: "FOUNDATION // HARDWARE",
-    title: "Sovereign Kernel & System Isolation",
+    tabLabel: "HENU OS",
+    tag: "FOUNDATION // OPERATING SYSTEM",
+    title: "HENU OS — The Sovereign Operating Foundation",
     summary:
-      "HENU systems originate at the lowest deterministic layer. By eliminating non-auditable blobs and vendor telemetry at boot, the kernel establishes a verifiable trust boundary before userland initialization.",
+      "Engineered from the hardware layer up to eliminate forced vendor surveillance, background telemetry, and fragile cloud dependencies. HENU OS provides an enduring, hardened computing foundation designed for high-agency developers, institutions, and secure workstations.",
     ecosystemAnchor: "HENU OS Base Layer",
     architecturalPillar: "Zero Third-Party Telemetry & Isolated Memory",
+    buttonLabel: "Explore HENU OS →",
+    buttonUrl: "/products/henu-os",
   },
   {
-    id: "intelligence",
+    id: "henu-ai",
     number: "02",
-    tag: "COGNITION // LOCAL MODELS",
-    title: "Local-First Neural Architectures",
+    tabLabel: "HENU AI",
+    tag: "COGNITION // AIR-GAPPED REASONING",
+    title: "HENU AI — Private Local Neural Intelligence",
     summary:
-      "Machine intelligence must serve the operator, not external surveillance platforms. HENU AI pipelines are engineered for deterministic local execution, strict memory boundaries, and private knowledge synthesis.",
-    ecosystemAnchor: "HENU AI Private Engine",
+      "Machine intelligence that executes entirely on local silicon. Synthesize documents, execute deep neural reasoning, and automate proprietary workflows without sending confidential enterprise prompts to external third-party cloud servers.",
+    ecosystemAnchor: "HENU AI Neural Acceleration Engine",
     architecturalPillar: "Air-Gapped Training & Offline Inference",
+    buttonLabel: "Discover HENU AI →",
+    buttonUrl: "/products/henu-ai",
   },
   {
-    id: "orchestration",
+    id: "henu-pa",
     number: "03",
-    tag: "PROTOCOL // IPC BUS",
-    title: "Deterministic Agent Orchestration",
+    tabLabel: "HENU PA",
+    tag: "ORCHESTRATION // SYSTEM TASK AGENT",
+    title: "HENU PA — Autonomous Personal Assistant",
     summary:
-      "Agents operate over private Unix domain sockets rather than cloud relay servers. HENU PA interprets voice, files, and multi-step tasks with instant hardware interrupt latency and auditable access logs.",
+      "An ultra-low latency system daemon that turns operator intent into autonomous execution. Coordinates cross-application workflows, file transformations, and system actions over private Unix domain sockets with zero cloud dependencies.",
     ecosystemAnchor: "HENU PA System Daemon",
     architecturalPillar: "Auditable IPC & Sovereign Permissions",
+    buttonLabel: "Meet HENU PA →",
+    buttonUrl: "/products/henu-pa",
   },
   {
-    id: "workspace",
+    id: "henu-ide",
     number: "04",
-    tag: "EXPERIENCE // WAYLAND SHELL",
-    title: "Minimalist High-DPI Workspaces",
+    tabLabel: "HENU IDE",
+    tag: "WORKSPACE // SUB-FRAME LATENCY",
+    title: "HENU IDE — Distraction-Free Developer Workspace",
     summary:
-      "The visual interface is an extension of engineering thought. A keyboard-driven, sub-frame latency Wayland compositor pairs with HENU IDE to provide zero-distraction focus for mission-critical software creation.",
-    ecosystemAnchor: "HENU IDE & Shell",
-    architecturalPillar: "Sub-Frame Latency & Keyboard Flow",
+      "Built for developers who value speed, precision, and focus. A keyboard-driven, sub-frame latency development environment paired with sovereign language toolchains, designed to run cleanly for decades without subscription lock-in.",
+    ecosystemAnchor: "HENU IDE & Wayland Shell",
+    architecturalPillar: "Sub-Frame Latency & Sovereign Toolchains",
+    buttonLabel: "Explore HENU IDE →",
+    buttonUrl: "/products/henu-ide",
   },
 ];
 
-export function EcosystemStoryVisualizer() {
+interface EcosystemStoryVisualizerProps {
+  chapters?: AboutChapter[];
+}
+
+export function EcosystemStoryVisualizer({ chapters }: EcosystemStoryVisualizerProps) {
   const [activeChapterIndex, setActiveChapterIndex] = useState(0);
   const [is3DSupported, setIs3DSupported] = useState(true);
   const [isReducedMotion, setIsReducedMotion] = useState(false);
@@ -65,7 +86,32 @@ export function EcosystemStoryVisualizer() {
   const animFrameRef = useRef<number | null>(null);
   const rotationRef = useRef<number>(0);
 
-  const activeChapter = STORY_CHAPTERS[activeChapterIndex] ?? STORY_CHAPTERS[0]!;
+  // Map incoming database chapters from Admin Panel or fall back to default products
+  const displayChapters: StoryChapterItem[] =
+    chapters && chapters.length > 0
+      ? chapters.map((ch, idx) => {
+          let tab = ch.title;
+          if (tab.includes("—")) {
+            tab = tab.split("—")[0]!.trim();
+          } else if (tab.includes("-")) {
+            tab = tab.split("-")[0]!.trim();
+          }
+          return {
+            id: ch.id,
+            number: ch.chapter_number || `0${idx + 1}`,
+            tabLabel: tab,
+            tag: ch.subtitle || "SOVEREIGN PRODUCT // ARCHITECTURE",
+            title: ch.title,
+            summary: ch.content,
+            ecosystemAnchor: ch.ecosystem_anchor || "Sovereign Foundation Layer",
+            architecturalPillar: ch.architectural_pillar || "Deterministic Integrity & Local Execution",
+            buttonLabel: ch.button_label || "Explore Product →",
+            buttonUrl: ch.button_url || "/products",
+          };
+        })
+      : DEFAULT_STORY_CHAPTERS;
+
+  const activeChapter = displayChapters[activeChapterIndex] ?? displayChapters[0]!;
 
   // Detect WebGL capability & reduced motion preferences
   useEffect(() => {
@@ -98,100 +144,128 @@ export function EcosystemStoryVisualizer() {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = 360;
+    const height = 360;
+    canvas.width = width * dpr;
+    canvas.height = height * dpr;
+    ctx.scale(dpr, dpr);
+
+    let isRunning = true;
+
+    // Node layers for isometric octahedral projection
+    const layers = [
+      { yOffset: -55, radius: 45, rings: 1, color: "#d4af37" },
+      { yOffset: -18, radius: 75, rings: 2, color: "#c59b27" },
+      { yOffset: 20, radius: 90, rings: 3, color: "#9a7b1c" },
+      { yOffset: 60, radius: 50, rings: 2, color: "#6b5413" },
+    ];
+
     const render = () => {
-      const width = canvas.width;
-      const height = canvas.height;
-      const cx = width / 2;
-      const cy = height / 2;
+      if (!isRunning) return;
 
       ctx.clearRect(0, 0, width, height);
 
-      // Rotation increment (only if motion is allowed and not actively dragged)
-      if (!isReducedMotion && !isInteracting) {
-        rotationRef.current += 0.007;
-      }
+      const cx = width / 2;
+      const cy = height / 2;
 
+      // Update rotation speed (subtle idle spin, faster on interaction)
+      if (!isReducedMotion) {
+        rotationRef.current += isInteracting ? 0.025 : 0.008;
+      }
       const rot = rotationRef.current;
-      const chapterFactor = (activeChapterIndex + 1) * 0.5;
 
-      // Draw background coordinate grid lines with warm gold tone
-      ctx.strokeStyle = "rgba(197, 155, 39, 0.12)";
+      // Draw subtle isometric grid foundation
+      ctx.strokeStyle = "rgba(212, 175, 55, 0.12)";
       ctx.lineWidth = 1;
-      for (let i = -150; i <= 150; i += 30) {
-        ctx.beginPath();
-        ctx.moveTo(cx + i, cy - 120);
-        ctx.lineTo(cx + i, cy + 120);
-        ctx.stroke();
+      const gridSize = 140;
+      const gridStep = 28;
 
+      ctx.save();
+      ctx.translate(cx, cy + 40);
+      for (let x = -gridSize; x <= gridSize; x += gridStep) {
         ctx.beginPath();
-        ctx.moveTo(cx - 150, cy + i);
-        ctx.lineTo(cx + 150, cy + i);
+        ctx.moveTo(x * 0.7, x * 0.35 - gridSize * 0.35);
+        ctx.lineTo(x * 0.7, x * 0.35 + gridSize * 0.35);
         ctx.stroke();
       }
-
-      // Draw 3D Orbiting Ecosystem Rings with Champagne Gold & Navy
-      const ringRadii = [60, 95, 130];
-      ringRadii.forEach((r, idx) => {
+      for (let y = -gridSize; y <= gridSize; y += gridStep) {
         ctx.beginPath();
-        ctx.ellipse(cx, cy, r, r * 0.45, rot * 0.5 * (idx % 2 === 0 ? 1 : -1), 0, Math.PI * 2);
-        ctx.strokeStyle =
-          idx === activeChapterIndex
-            ? "rgba(197, 155, 39, 0.9)"
-            : "rgba(20, 40, 75, 0.25)";
-        ctx.lineWidth = idx === activeChapterIndex ? 2 : 1;
+        ctx.moveTo(-gridSize * 0.7, y * 0.35 - gridSize * 0.35);
+        ctx.lineTo(gridSize * 0.7, y * 0.35 + gridSize * 0.35);
         ctx.stroke();
+      }
+      ctx.restore();
+
+      // Render 3D Sovereign Wireframe Octahedron
+      layers.forEach((layer, idx) => {
+        const isCurrentActive = idx === activeChapterIndex % 4;
+        const yPos = cy + layer.yOffset;
+
+        ctx.save();
+        ctx.translate(cx, yPos);
+
+        // Orbital rings
+        for (let r = 1; r <= layer.rings; r++) {
+          const rx = layer.radius * (r / layer.rings);
+          const ry = rx * 0.38;
+
+          ctx.beginPath();
+          ctx.ellipse(0, 0, rx, ry, rot * 0.2, 0, Math.PI * 2);
+          ctx.strokeStyle = isCurrentActive
+            ? "#c59b27"
+            : "rgba(212, 175, 55, 0.22)";
+          ctx.lineWidth = isCurrentActive ? 2 : 1;
+          ctx.stroke();
+
+          // Satellite tracking node
+          if (isCurrentActive && r === layer.rings) {
+            const nodeAngle = rot * 1.5;
+            const nx = Math.cos(nodeAngle) * rx;
+            const ny = Math.sin(nodeAngle) * ry;
+
+            ctx.fillStyle = "#c59b27";
+            ctx.beginPath();
+            ctx.arc(nx, ny, 4.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.8)";
+            ctx.lineWidth = 1.5;
+            ctx.stroke();
+          }
+        }
+
+        ctx.restore();
       });
 
-      // Central Sovereign Monolith (Isometric Polyhedron)
-      const size = 32 + chapterFactor * 4;
-      const h = 48 + chapterFactor * 6;
+      // Central crystalline diamond core
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rot * 0.5);
 
-      const pTop = { x: cx, y: cy - h + Math.sin(rot) * 4 };
-      const pBottom = { x: cx, y: cy + h * 0.5 };
-      const pLeft = { x: cx - size * Math.cos(rot), y: cy - size * 0.3 * Math.sin(rot) };
-      const pRight = { x: cx + size * Math.cos(rot), y: cy + size * 0.3 * Math.sin(rot) };
-
-      // Left face with Prussian Navy tint
-      ctx.fillStyle = "rgba(20, 40, 75, 0.12)";
+      const dSize = 34 + Math.sin(rot * 2) * 2;
       ctx.beginPath();
-      ctx.moveTo(pTop.x, pTop.y);
-      ctx.lineTo(pLeft.x, pLeft.y);
-      ctx.lineTo(pBottom.x, pBottom.y);
+      ctx.moveTo(0, -dSize);
+      ctx.lineTo(dSize * 0.7, 0);
+      ctx.lineTo(0, dSize);
+      ctx.lineTo(-dSize * 0.7, 0);
       ctx.closePath();
+
+      ctx.fillStyle = "rgba(212, 175, 55, 0.15)";
       ctx.fill();
-      ctx.strokeStyle = "rgba(197, 155, 39, 0.45)";
+      ctx.strokeStyle = "#c59b27";
+      ctx.lineWidth = 1.5;
       ctx.stroke();
 
-      // Right face with Champagne Gold tint
-      ctx.fillStyle = "rgba(197, 155, 39, 0.22)";
       ctx.beginPath();
-      ctx.moveTo(pTop.x, pTop.y);
-      ctx.lineTo(pRight.x, pRight.y);
-      ctx.lineTo(pBottom.x, pBottom.y);
-      ctx.closePath();
-      ctx.fill();
-      ctx.strokeStyle = "rgba(197, 155, 39, 0.8)";
+      ctx.moveTo(0, -dSize);
+      ctx.lineTo(0, dSize);
+      ctx.moveTo(-dSize * 0.7, 0);
+      ctx.lineTo(dSize * 0.7, 0);
+      ctx.strokeStyle = "rgba(212, 175, 55, 0.4)";
       ctx.stroke();
 
-      // Orbiting Node indicator for Active Chapter (Burnished Gold)
-      const nodeAngle = rot * 1.5 + (activeChapterIndex * Math.PI) / 2;
-      const nodeDist = ringRadii[Math.min(activeChapterIndex, ringRadii.length - 1)] ?? 100;
-      const nx = cx + nodeDist * Math.cos(nodeAngle);
-      const ny = cy + nodeDist * 0.45 * Math.sin(nodeAngle);
-
-      ctx.beginPath();
-      ctx.arc(nx, ny, 5, 0, Math.PI * 2);
-      ctx.fillStyle = "rgba(197, 155, 39, 1)";
-      ctx.fill();
-
-      // Connect node to central apex with dashed gold trace
-      ctx.beginPath();
-      ctx.setLineDash([3, 3]);
-      ctx.moveTo(pTop.x, pTop.y);
-      ctx.lineTo(nx, ny);
-      ctx.strokeStyle = "rgba(197, 155, 39, 0.55)";
-      ctx.stroke();
-      ctx.setLineDash([]);
+      ctx.restore();
 
       animFrameRef.current = requestAnimationFrame(render);
     };
@@ -199,101 +273,95 @@ export function EcosystemStoryVisualizer() {
     render();
 
     return () => {
+      isRunning = false;
       if (animFrameRef.current) {
         cancelAnimationFrame(animFrameRef.current);
       }
     };
-  }, [is3DSupported, isReducedMotion, isInteracting, activeChapterIndex]);
+  }, [activeChapterIndex, is3DSupported, isReducedMotion, isInteracting]);
 
   return (
-    <div className="rounded-2xl border border-[#d4af37]/30 bg-gradient-to-br from-[#faf8f4] to-[#f5eee2] dark:from-[#0d1624] dark:to-[#08101a] overflow-hidden shadow-elevated">
-      {/* Header bar with Champagne Brass accents */}
-      <div className="p-6 md:p-8 border-b border-[#d4af37]/25 bg-surface-primary/70 dark:bg-[#111927]/70 backdrop-blur-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <span className="font-mono text-[10px] uppercase tracking-widest px-2 py-0.5 rounded bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#8c6b1b] dark:text-[#dfba5f] font-semibold">
+    <div
+      role="region"
+      aria-label="HENU Sovereign Product & Architecture Story Visualizer"
+      className="relative rounded-2xl border border-[#d4af37]/35 bg-gradient-to-br from-[#faf8f4] via-[#f7f3ea] to-[#f4eee2] dark:from-[#0d1624] dark:via-[#0b131e] dark:to-[#08101a] p-6 sm:p-10 shadow-elevated overflow-hidden"
+    >
+      {/* Decorative Golden Archival Corner Accents */}
+      <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-[#d4af37]/60" />
+      <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-[#d4af37]/60" />
+      <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-[#d4af37]/60" />
+      <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-[#d4af37]/60" />
+
+      {/* Header bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#d4af37]/25 gap-4">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="font-mono text-xs uppercase tracking-widest text-[#8c6b1b] dark:text-[#dfba5f] font-semibold px-2 py-0.5 rounded bg-[#d4af37]/10 border border-[#d4af37]/30">
               CHRONICLE 2026.1
             </span>
             <span className="font-mono text-xs text-ink-muted">Sovereign Architecture Instrument</span>
           </div>
-          <h3 className="font-serif text-2xl sm:text-3xl font-normal text-[#122238] dark:text-[#edf2f7]">
-            Ecosystem Evolution &amp; Architectural Pillars
+          <h3 className="font-serif text-2xl sm:text-3xl text-[#122238] dark:text-[#edf2f7] font-normal tracking-tight">
+            Ecosystem Evolution & Architectural Pillars
           </h3>
         </div>
+
         <div className="flex items-center gap-2">
-          {is3DSupported ? (
-            <span className="font-mono text-[10px] px-2.5 py-1 rounded bg-[#d4af37]/10 border border-[#d4af37]/30 text-[#8c6b1b] dark:text-[#dfba5f] font-semibold flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#c59b27]" />
-              3D ISOMETRIC PROJECTION
-            </span>
-          ) : (
-            <span className="font-mono text-[10px] px-2.5 py-1 rounded bg-surface-secondary text-ink-muted">
-              STATIC BLUEPRINT MODE
-            </span>
-          )}
+          <span className="font-mono text-xs text-[#8c6b1b] dark:text-[#dfba5f] font-semibold px-2.5 py-1 rounded-full bg-[#d4af37]/15 border border-[#d4af37]/30 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-[#c59b27] animate-pulse" />
+            3D ISOMETRIC PROJECTION
+          </span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-0 divide-y lg:divide-y-0 lg:divide-x divide-[#d4af37]/20">
-        {/* Left: Interactive 3D Perspective (5 Cols) */}
-        <div className="lg:col-span-5 p-6 md:p-8 flex flex-col items-center justify-between bg-surface-primary/40 dark:bg-[#0c1420]/40 relative">
-          <div className="w-full flex items-center justify-between font-mono text-[11px] text-[#8c6b1b] dark:text-[#dfba5f] mb-4">
-            <span className="uppercase tracking-wider">PROJECTION // PERSPECTIVE</span>
-            <span className="font-semibold">LAYER {activeChapter.number} / 04</span>
+      {/* Main Visualizer Body: Split 5/7 Layout */}
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        {/* Left: Interactive 3D Canvas Projection (5 Cols) */}
+        <div
+          className="lg:col-span-5 relative flex flex-col items-center justify-center p-4 rounded-xl border border-[#d4af37]/20 bg-surface-secondary/50 dark:bg-[#070d14]/70"
+          onMouseEnter={() => setIsInteracting(true)}
+          onMouseLeave={() => setIsInteracting(false)}
+        >
+          <div className="w-full flex items-center justify-between text-[11px] font-mono text-ink-muted mb-2 px-2">
+            <span>PROJECTION // PERSPECTIVE</span>
+            <span className="text-[#8c6b1b] dark:text-[#dfba5f]">
+              LAYER {activeChapter.number} / 04
+            </span>
           </div>
 
-          {/* Interactive / Progressive Canvas with Classy Hairline Frame */}
-          <div className="relative w-full aspect-square max-w-[320px] flex items-center justify-center p-2 rounded-xl border border-[#d4af37]/25 bg-surface-primary/90 dark:bg-[#0d1624]/90 shadow-subtle">
+          <div className="relative w-[280px] h-[280px] sm:w-[320px] sm:h-[320px] flex items-center justify-center">
             {is3DSupported ? (
               <canvas
                 ref={canvasRef}
-                width={300}
-                height={300}
-                className="w-full h-full cursor-grab active:cursor-grabbing rounded-lg"
-                onMouseDown={() => setIsInteracting(true)}
-                onMouseUp={() => setIsInteracting(false)}
-                onMouseLeave={() => setIsInteracting(false)}
-                role="img"
-                aria-label={`3D architectural projection for ${activeChapter.title}`}
+                className="w-full h-full block cursor-grab active:cursor-grabbing select-none"
+                style={{ width: "100%", height: "100%" }}
+                aria-label={`Visual isometric 3D representation of ${activeChapter.title}`}
               />
             ) : (
-              <div
-                role="img"
-                aria-label={`Static architectural diagram for ${activeChapter.title}`}
-                className="w-full h-full rounded-lg p-6 flex flex-col justify-center items-center text-center space-y-4"
-              >
-                <div className="w-16 h-16 rounded-full border-2 border-[#d4af37]/50 flex items-center justify-center font-mono font-bold text-[#c59b27] text-lg">
-                  {activeChapter.number}
-                </div>
-                <div className="space-y-1">
-                  <span className="font-mono text-xs uppercase tracking-wider text-ink-muted">
-                    Static Blueprint
-                  </span>
-                  <p className="font-serif text-[#122238] dark:text-[#edf2f7] font-semibold text-sm">
-                    {activeChapter.ecosystemAnchor}
-                  </p>
-                </div>
+              <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center space-y-2 border border-dashed border-[#d4af37]/40 rounded-lg">
+                <span className="font-mono text-xs text-[#8c6b1b]">STATIC SCHEMATIC</span>
+                <p className="font-sans text-xs text-ink-muted">
+                  3D hardware acceleration unavailable. Fallback vector layer active.
+                </p>
               </div>
             )}
           </div>
 
-          <div className="mt-6 w-full text-center space-y-1">
-            <span className="font-mono text-[11px] text-ink-muted block">
-              Asset Protocol Verification:
-            </span>
-            <p className="font-mono text-[10px] text-ink-secondary leading-normal">
-              Zero cloud pingbacks. Deterministic vector mathematics rendering strictly in local memory.
+          <div className="w-full text-center mt-3 pt-2 border-t border-[#d4af37]/15">
+            <p className="font-mono text-[10px] text-ink-muted max-w-xs mx-auto">
+              Asset Protocol Verification: Zero cloud pingbacks. Deterministic vector mathematics rendering strictly in local memory.
             </p>
           </div>
         </div>
 
         {/* Right: Chapter Content & Navigation Controls (7 Cols) */}
-        <div className="lg:col-span-7 p-6 md:p-8 flex flex-col justify-between space-y-8 bg-surface-primary/60 dark:bg-[#0f1722]/60">
+        <div className="lg:col-span-7 p-6 md:p-8 flex flex-col justify-between space-y-8 bg-surface-primary/60 dark:bg-[#0f1722]/60 rounded-xl border border-[#d4af37]/20">
           <div className="space-y-6">
-            {/* Step Selector Pills with Champagne Gold Active State */}
+            {/* Step Selector Pills with Product Name & Number */}
             <div className="flex flex-wrap gap-2" role="tablist" aria-label="Ecosystem Story Chapters">
-              {STORY_CHAPTERS.map((ch, idx) => {
+              {displayChapters.map((ch, idx) => {
                 const isSelected = idx === activeChapterIndex;
+                const cleanLabel = ch.tabLabel.replace(/^HENU\s+/i, "");
                 return (
                   <button
                     key={ch.id}
@@ -308,7 +376,7 @@ export function EcosystemStoryVisualizer() {
                         : "bg-surface-secondary text-ink-secondary border-border-default hover:border-[#d4af37]/50 hover:text-ink-primary"
                     }`}
                   >
-                    {`${ch.number} // ${ch.id.toUpperCase()}`}
+                    {`${ch.number} // ${cleanLabel.toUpperCase()}`}
                   </button>
                 );
               })}
@@ -344,6 +412,19 @@ export function EcosystemStoryVisualizer() {
                   <span className="text-[#8c6b1b] dark:text-[#dfba5f] font-semibold">{activeChapter.architecturalPillar}</span>
                 </div>
               </div>
+
+              {/* Dynamic Action Button Connected to Admin Panel */}
+              {activeChapter.buttonUrl && (
+                <div className="pt-3">
+                  <Link
+                    href={activeChapter.buttonUrl}
+                    className="inline-flex items-center gap-2.5 px-5 py-2.5 rounded-xl font-mono text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-[#c59b27] via-[#d4af37] to-[#dfba5f] text-[#0c1420] hover:brightness-110 shadow-sm hover:shadow-md transition-all active:scale-[0.98]"
+                  >
+                    <span>{activeChapter.buttonLabel || "Explore Product"}</span>
+                    <span aria-hidden="true">&rarr;</span>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
 
@@ -355,20 +436,20 @@ export function EcosystemStoryVisualizer() {
               onClick={() => setActiveChapterIndex((prev) => Math.max(0, prev - 1))}
               className="px-4 py-2 rounded-lg font-mono text-xs border border-[#d4af37]/30 bg-surface-secondary text-ink-primary hover:border-[#d4af37]/60 hover:text-[#8c6b1b] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              &larr; Previous Pillar
+              &larr; Previous Product
             </button>
 
             <span className="font-mono text-xs text-[#8c6b1b] dark:text-[#dfba5f] font-semibold">
-              {activeChapterIndex + 1} of {STORY_CHAPTERS.length}
+              {activeChapterIndex + 1} of {displayChapters.length}
             </span>
 
             <button
               type="button"
-              disabled={activeChapterIndex === STORY_CHAPTERS.length - 1}
-              onClick={() => setActiveChapterIndex((prev) => Math.min(STORY_CHAPTERS.length - 1, prev + 1))}
+              disabled={activeChapterIndex === displayChapters.length - 1}
+              onClick={() => setActiveChapterIndex((prev) => Math.min(displayChapters.length - 1, prev + 1))}
               className="px-4 py-2 rounded-lg font-mono text-xs border border-[#d4af37]/30 bg-surface-secondary text-ink-primary hover:border-[#d4af37]/60 hover:text-[#8c6b1b] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
             >
-              Next Pillar &rarr;
+              Next Product &rarr;
             </button>
           </div>
         </div>

@@ -56,6 +56,10 @@ export interface AboutChapter {
   media_id?: string | null;
   media_url?: string | null;
   media_alt?: string | null;
+  button_label?: string | null;
+  button_url?: string | null;
+  ecosystem_anchor?: string | null;
+  architectural_pillar?: string | null;
 }
 
 export interface TimelineEntry {

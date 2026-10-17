@@ -16,6 +16,10 @@ const ChapterSchema = z.object({
   media_id: z.string().nullable().optional(),
   media_url: z.string().nullable().optional(),
   media_alt: z.string().nullable().optional(),
+  button_label: z.string().trim().nullable().optional(),
+  button_url: z.string().trim().nullable().optional(),
+  ecosystem_anchor: z.string().trim().nullable().optional(),
+  architectural_pillar: z.string().trim().nullable().optional(),
 });
 
 const TimelineEntrySchema = z.object({
@@ -32,6 +36,7 @@ const TimelineEntrySchema = z.object({
 export async function updateVisionMissionAction(data: {
   vision_statement: string;
   mission_statement: string;
+  hero_image_url?: string | null;
 }) {
   const admin = await requireAdminSession();
   try {
@@ -39,7 +44,7 @@ export async function updateVisionMissionAction(data: {
     return { success: true, data: updated };
   } catch (err: any) {
     if (err instanceof AppError) return { success: false, error: err.message };
-    return { success: false, error: "Failed to update vision and mission." };
+    return { success: false, error: "Failed to update vision, mission, and hero image." };
   }
 }
 

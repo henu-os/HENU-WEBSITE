@@ -38,7 +38,11 @@ export class AboutService {
    * Admin: Updates high-level vision and mission statements.
    */
   async updateVisionMission(
-    data: { vision_statement: string; mission_statement: string },
+    data: {
+      vision_statement: string;
+      mission_statement: string;
+      hero_image_url?: string | null;
+    },
     admin: AdminSession
   ): Promise<AboutContent> {
     if (!data.vision_statement || data.vision_statement.trim().length === 0) {
@@ -48,13 +52,15 @@ export class AboutService {
       throw new ValidationError("Mission statement is required.");
     }
 
-    const updated = await this.repo.updateAboutContent(
-      {
-        vision_statement: data.vision_statement.trim(),
-        mission_statement: data.mission_statement.trim(),
-      },
-      admin.id
-    );
+    const payload: any = {
+      vision_statement: data.vision_statement.trim(),
+      mission_statement: data.mission_statement.trim(),
+    };
+    if (data.hero_image_url !== undefined) {
+      payload.hero_image_url = data.hero_image_url?.trim() || null;
+    }
+
+    const updated = await this.repo.updateAboutContent(payload, admin.id);
 
     await auditLogRepository.record({
       actor_id: admin.id,

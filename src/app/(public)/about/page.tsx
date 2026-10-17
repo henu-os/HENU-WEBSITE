@@ -4,10 +4,10 @@ import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { EcosystemStoryVisualizer } from "@/components/features/about/ecosystem-story-visualizer";
-import { AboutHeroHeadline } from "@/components/features/about/about-hero-headline";
-import { AboutInvariantsCard } from "@/components/features/about/about-invariants-card";
+import { AboutHeroSection } from "@/components/features/about/about-hero-section";
 import { AboutPillarsGrid } from "@/components/features/about/about-pillars-grid";
 import { AboutChapterVisual } from "@/components/features/about/about-chapter-visual";
+import { AboutTestimonials } from "@/components/features/about/about-testimonials";
 import { AmbientLivingMesh } from "@/components/ui/ambient-living-mesh";
 import { aboutService } from "@/server/services/about.service";
 import type { AboutChapter, TimelineEntry } from "@/types/domain";
@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
   const content = await aboutService.getPublicAboutContent();
 
   return {
-    title: "About // Sovereign Computing Ecosystem — HENU",
+    title: "About The Company // Sovereign Computing Ecosystem — HENU",
     description:
       content.mission_statement ||
       "HENU is an independent sovereign computing collective engineering durable, zero-telemetry foundational operating systems and high-integrity digital platforms.",
@@ -44,34 +44,65 @@ export default async function AboutPage() {
       {/* Living Ambient Warm Champagne Gold Mesh */}
       <AmbientLivingMesh variant="gold" />
 
-      <Container size="lg" className="relative z-10 space-y-24 sm:space-y-32">
-        {/* 1. Header & Sovereign Vision Statement */}
-        <header className="space-y-8 max-w-4xl">
-          <div className="space-y-3">
-            <span className="font-mono text-xs uppercase tracking-widest text-[#8c6b1b] dark:text-[#dfba5f] block">
-              Company // Institutional Archive
-            </span>
+      <Container size="lg" className="relative z-10 space-y-20 sm:space-y-28">
+        {/* 1. Hero Section (Split 2-Column: Left Prose + Right Admin-Configured Image) */}
+        <AboutHeroSection
+          visionStatement={content.vision_statement}
+          missionStatement={content.mission_statement}
+          heroImageUrl={content.hero_image_url}
+        />
 
-            {/* Interactive Classy 2-Line Headline with Hover Perspective Flip */}
-            <AboutHeroHeadline />
+        {/* 2. The Company Story & Origin */}
+        <section
+          aria-label="The Story Behind HENU"
+          className="rounded-2xl border border-[#d4af37]/35 bg-gradient-to-br from-[#faf8f4] via-[#f7f3ea] to-[#f4eee2] dark:from-[#0d1624] dark:via-[#0b131e] dark:to-[#08101a] p-8 sm:p-12 shadow-elevated relative overflow-hidden space-y-6"
+        >
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#d4af37]/25 gap-2">
+            <div className="space-y-1">
+              <span className="font-mono text-xs uppercase tracking-widest text-[#8c6b1b] dark:text-[#dfba5f] font-semibold block">
+                The Company Story // Sovereign Mandate
+              </span>
+              <h2 className="font-serif text-2xl sm:text-3xl text-[#122238] dark:text-[#edf2f7] font-normal">
+                Why We Built HENU
+              </h2>
+            </div>
+            <span className="font-mono text-xs text-ink-muted px-2.5 py-1 rounded bg-[#d4af37]/10 border border-[#d4af37]/20 self-start sm:self-auto">
+              EST. 2024 &bull; ZERO DEBT
+            </span>
           </div>
 
-          {/* Illuminated Sovereign Folio Invariants Card */}
-          <AboutInvariantsCard
-            visionStatement={content.vision_statement}
-            missionStatement={content.mission_statement}
-          />
-        </header>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 text-ink-secondary leading-relaxed font-sans text-base">
+            <div className="space-y-4">
+              <p>
+                Computing was originally conceived as an intellectual bicycle for the human mind—an empowering, private instrument of sovereign agency. Over the last two decades, however, mainstream software was quietly transformed into an extraction economy: endless subscription rents, pervasive cloud tracking, and forced corporate lock-in.
+              </p>
+              <p>
+                HENU was founded by a collective of systems architects, security researchers, and software engineers who asked a fundamental question: <span className="text-ink-primary font-medium">What if computing tools were once again built to be owned forever, execute offline without cloud leashes, and treat human operators with absolute dignity?</span>
+              </p>
+            </div>
+            <div className="space-y-4">
+              <p>
+                From this imperative, the HENU product continuum was born. We did not build an isolated utility—we engineered an interconnected sovereign stack: a verifiable operating foundation (<strong className="text-ink-primary">HENU OS</strong>), local air-gapped machine intelligence (<strong className="text-ink-primary">HENU AI</strong>), a bare-metal automation agent (<strong className="text-ink-primary">HENU PA</strong>), and a sub-frame latency developer environment (<strong className="text-ink-primary">HENU IDE</strong>).
+              </p>
+              <p>
+                Today, HENU operates as a sovereign software house and enterprise engineering partner. We deliver production systems that execute cleanly on bare metal, protected by double-entry audit ledgers and unconditional IP ownership.
+              </p>
+            </div>
+          </div>
+        </section>
 
-        {/* 2. The Four Pillars of Sovereign Architecture */}
+        {/* 3. The Four Pillars of Sovereign Architecture */}
         <section aria-label="Core Foundational Pillars">
           <AboutPillarsGrid />
         </section>
 
-        {/* 3. Interactive 3D Architecture Visualizer Instrument */}
+        {/* 4. Interactive 3D Product & Architecture Visualizer Instrument (Image 2) */}
         <section aria-label="Ecosystem Story Visualizer">
-          <EcosystemStoryVisualizer />
+          <EcosystemStoryVisualizer chapters={chapters} />
         </section>
+
+        {/* 5. Institutional Trust & Client Testimonials */}
+        <AboutTestimonials />
 
         {/* 4. Chapters Storytelling Grid (Narrative Architecture) */}
         <section aria-label="About Story Chapters" className="space-y-12">
@@ -217,73 +248,29 @@ export default async function AboutPage() {
           </section>
         )}
 
-        {/* 6. Sovereign Invitation & Ecosystem Pathways */}
+        {/* 6. Sovereign Dialogue & Institutional Engagement */}
         <section
-          aria-label="Ways to work with HENU"
-          className="rounded-2xl border border-[#d4af37]/35 bg-gradient-to-br from-[#faf8f4] via-[#f7f2e6] to-[#f3ebd8] dark:from-[#0d1624] dark:to-[#08101a] p-8 sm:p-14 space-y-8 shadow-elevated relative overflow-hidden"
+          aria-label="Engage With The Collective"
+          className="rounded-2xl border border-[#d4af37]/35 bg-gradient-to-br from-[#faf8f4] via-[#f7f2e6] to-[#f3ebd8] dark:from-[#0d1624] dark:to-[#08101a] p-8 sm:p-12 shadow-elevated relative overflow-hidden flex flex-col md:flex-row md:items-center justify-between gap-6"
         >
-          {/* Subtle Archival Corner Brackets */}
-          <div className="absolute top-3 left-3 w-3 h-3 border-t-2 border-l-2 border-[#d4af37]/60" />
-          <div className="absolute top-3 right-3 w-3 h-3 border-t-2 border-r-2 border-[#d4af37]/60" />
-          <div className="absolute bottom-3 left-3 w-3 h-3 border-b-2 border-l-2 border-[#d4af37]/60" />
-          <div className="absolute bottom-3 right-3 w-3 h-3 border-b-2 border-r-2 border-[#d4af37]/60" />
-
-          <div className="max-w-2xl space-y-3 relative z-10">
-            <span className="font-mono text-xs uppercase tracking-widest text-[#8c6b1b] dark:text-[#dfba5f] block">
-              Engagement // Sovereign Pathways
+          <div className="space-y-2 max-w-xl">
+            <span className="font-mono text-xs uppercase tracking-widest text-[#8c6b1b] dark:text-[#dfba5f] font-semibold block">
+              Engagement // Dialogue
             </span>
-            <h2 className="font-serif text-3xl sm:text-4xl text-[#122238] dark:text-[#edf2f7] font-normal tracking-tight">
-              Engage With The Sovereign Ecosystem
+            <h2 className="font-serif text-2xl sm:text-3xl text-[#122238] dark:text-[#edf2f7] font-normal">
+              Partner With The Sovereign Collective
             </h2>
-            <p className="font-sans text-sm sm:text-base text-ink-secondary leading-relaxed">
+            <p className="font-sans text-sm text-ink-secondary leading-relaxed">
               HENU collaborates with institutions and engineering teams committed to lasting software durability, privacy sovereignty, and high-performance system design.
             </p>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 pt-2 relative z-10">
-            <Link
-              href="/products"
-              className="p-6 rounded-xl border border-[#d4af37]/25 bg-surface-primary/90 dark:bg-[#111927]/90 hover:border-[#d4af37]/60 hover:shadow-subtle transition-all group block space-y-2.5"
-            >
-              <span className="font-mono text-xs text-[#8c6b1b] dark:text-[#dfba5f] uppercase tracking-wider block font-semibold">
-                I // PRODUCTS
-              </span>
-              <h3 className="font-serif text-lg text-ink-primary group-hover:text-[#8c6b1b] dark:group-hover:text-[#dfba5f] transition-colors">
-                Explore HENU OS &rarr;
-              </h3>
-              <p className="font-sans text-xs text-ink-secondary leading-relaxed">
-                Inspect our sovereign operating system, local intelligence, and native toolchains.
-              </p>
-            </Link>
-
-            <Link
-              href="/services"
-              className="p-6 rounded-xl border border-[#d4af37]/25 bg-surface-primary/90 dark:bg-[#111927]/90 hover:border-[#d4af37]/60 hover:shadow-subtle transition-all group block space-y-2.5"
-            >
-              <span className="font-mono text-xs text-[#8c6b1b] dark:text-[#dfba5f] uppercase tracking-wider block font-semibold">
-                II // SERVICES
-              </span>
-              <h3 className="font-serif text-lg text-ink-primary group-hover:text-[#8c6b1b] dark:group-hover:text-[#dfba5f] transition-colors">
-                Commission Architecture &rarr;
-              </h3>
-              <p className="font-sans text-xs text-ink-secondary leading-relaxed">
-                Retain HENU engineering craft for enterprise platforms and private ledgers.
-              </p>
-            </Link>
-
+          <div>
             <Link
               href="/contact"
-              className="p-6 rounded-xl border border-[#d4af37]/25 bg-surface-primary/90 dark:bg-[#111927]/90 hover:border-[#d4af37]/60 hover:shadow-subtle transition-all group block space-y-2.5"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-mono text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-[#c59b27] via-[#d4af37] to-[#dfba5f] text-[#0c1420] hover:brightness-110 shadow-sm hover:shadow-md transition-all shrink-0"
             >
-              <span className="font-mono text-xs text-[#8c6b1b] dark:text-[#dfba5f] uppercase tracking-wider block font-semibold">
-                III // DIALOGUE
-              </span>
-              <h3 className="font-serif text-lg text-ink-primary group-hover:text-[#8c6b1b] dark:group-hover:text-[#dfba5f] transition-colors">
-                Start An Enquiry &rarr;
-              </h3>
-              <p className="font-sans text-xs text-ink-secondary leading-relaxed">
-                Initiate a project dialogue or schedule an architectural consultation.
-              </p>
+              <span>Initiate Dialogue</span>
+              <span aria-hidden="true">&rarr;</span>
             </Link>
           </div>
         </section>
