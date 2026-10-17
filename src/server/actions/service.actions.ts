@@ -7,6 +7,7 @@ import type {
   UpdateServiceInput,
   CreateServiceCategoryInput,
   UpdateServiceCategoryInput,
+  ServicesHeroSettings,
 } from "@/server/repositories/service.repository";
 import { z } from "zod";
 
@@ -119,4 +120,20 @@ export async function reorderServicesAction(orderedIds: string[]) {
   const admin = await requireAdminSession();
   await serviceService.reorderServices(orderedIds, admin);
   return { success: true };
+}
+
+const heroMediaSchema = z.object({
+  media_type: z.enum(["image", "video"]),
+  media_url: z.string().trim(),
+  poster_url: z.string().trim().optional(),
+  badge_label: z.string().trim().optional(),
+  headline: z.string().trim().optional(),
+  description: z.string().trim().optional(),
+});
+
+export async function updateServicesHeroSettingsAction(data: ServicesHeroSettings) {
+  const admin = await requireAdminSession();
+  const validated = heroMediaSchema.parse(data);
+  const settings = await serviceService.updateServicesHeroSettings(validated, admin);
+  return { success: true, settings };
 }

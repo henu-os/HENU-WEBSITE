@@ -9,8 +9,8 @@ export type UpdateSiteSettingsInput = Database["public"]["Tables"]["site_setting
 
 const DEFAULT_SITE_SETTINGS: SiteSettings = {
   id: "default",
-  organization_name: "HENU",
-  contact_email: "contact@henu.org",
+  organization_name: "HENU OS PRIVATE LIMITED",
+  contact_email: "henuospvtltd@gmail.com",
   calendly_url: "https://calendly.com/henuos",
   header_cta_label: "Contact Us",
   footer_text: "© 2025 HENU OS Pvt Ltd. All rights reserved.",

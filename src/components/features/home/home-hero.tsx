@@ -4,6 +4,7 @@ import { Container } from "@/components/ui/container";
 import { LinkButton } from "@/components/ui/link-button";
 import { Badge } from "@/components/ui/badge";
 import { ParticleAttractorBox } from "./particle-attractor-box";
+import { HomeHeroHeadline } from "./home-hero-headline";
 
 interface HomeHeroProps {
   content: HomeContent;
@@ -24,19 +25,7 @@ export function HomeHero({ content }: HomeHeroProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Left Column: Asymmetric Statement (7 Cols on Desktop) */}
           <div className="lg:col-span-7 flex flex-col justify-center">
-            <div className="flex items-center gap-3 mb-6">
-              <span className="font-mono text-xs uppercase tracking-widest text-accent-spectral font-semibold">
-                Technology Ecosystem
-              </span>
-              <span className="h-px w-8 bg-border-default" aria-hidden="true" />
-              <Badge variant="outline" size="sm">
-                V1 Foundation
-              </Badge>
-            </div>
-
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight text-ink-primary leading-[1.05] mb-6">
-              {content.hero_statement}
-            </h1>
+            <HomeHeroHeadline heroStatement={content.hero_statement} />
 
             <p className="font-sans text-lg sm:text-xl text-ink-secondary leading-relaxed mb-8 max-w-2xl">
               {content.hero_supporting_line}

@@ -11,8 +11,13 @@ describe("ServiceDetailView Component (SERV-002, SERV-004)", () => {
   const websiteDevService = BASELINE_SERVICES.find((s) => s.slug === "website-development")!;
   const buildCategory = BASELINE_CATEGORIES.find((c) => c.slug === "build")!;
 
-  const legalService = BASELINE_SERVICES.find((s) => s.slug === "legal-services")!;
-  const businessCat = BASELINE_CATEGORIES.find((c) => c.slug === "business-foundations")!;
+  const disclaimerService = {
+    ...websiteDevService,
+    id: "s-disclaimer-test",
+    name: "Regulated Systems Architecture",
+    requires_disclaimer: true,
+    disclaimer_block: "Important: HENU is not a law firm. All contracts are subject to review.",
+  };
 
   it("renders service header, summary, and category badge", () => {
     const html = renderToStaticMarkup(
@@ -44,8 +49,8 @@ describe("ServiceDetailView Component (SERV-002, SERV-004)", () => {
   it("renders prominent disclaimer notice on sensitive services (SERV-004)", () => {
     const html = renderToStaticMarkup(
       <ServiceDetailView
-        service={legalService}
-        category={businessCat}
+        service={disclaimerService}
+        category={buildCategory}
       />
     );
 

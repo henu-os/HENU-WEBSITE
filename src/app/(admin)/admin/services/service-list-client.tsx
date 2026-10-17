@@ -13,7 +13,10 @@ import {
   updateCategoryAction,
   deleteCategoryAction,
   reorderCategoriesAction,
+  updateServicesHeroSettingsAction,
 } from "@/server/actions/service.actions";
+import type { ServicesHeroSettings } from "@/server/repositories/service.repository";
+import { ServicesHeroVisual } from "@/components/features/services/services-hero-visual";
 import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/link-button";
 import { Button } from "@/components/ui/button";
@@ -23,16 +26,20 @@ import { FormField } from "@/components/ui/form-field";
 interface ServiceListClientProps {
   initialServices: Service[];
   initialCategories: ServiceCategory[];
+  initialHeroSettings: ServicesHeroSettings;
 }
 
 export function ServiceListClient({
   initialServices,
   initialCategories,
+  initialHeroSettings,
 }: ServiceListClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const [activeTab, setActiveTab] = useState<"services" | "categories">("services");
+  const [activeTab, setActiveTab] = useState<"services" | "categories" | "hero-media">("services");
+  const [heroForm, setHeroForm] = useState<ServicesHeroSettings>(initialHeroSettings);
+  const [heroStatus, setHeroStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<string>("all");
   const [selectedStatusFilter, setSelectedStatusFilter] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -267,6 +274,17 @@ export function ServiceListClient({
           }`}
         >
           Categories ({initialCategories.length})
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("hero-media")}
+          className={`pb-3 font-medium transition-colors border-b-2 -mb-[2px] ${
+            activeTab === "hero-media"
+              ? "border-accent-spectral text-ink-primary font-bold"
+              : "border-transparent text-ink-muted hover:text-ink-primary"
+          }`}
+        >
+          Hero Media Slot (Right Side)
         </button>
       </div>
 
@@ -721,6 +739,240 @@ export function ServiceListClient({
                 })}
               </tbody>
             </table>
+          </div>
+        </div>
+      )}
+
+      {/* ============================================================== */}
+      {/* TAB 3: HERO MEDIA SLOT (RIGHT SIDE)                             */}
+      {/* ============================================================== */}
+      {activeTab === "hero-media" && (
+        <div className="space-y-6">
+          <div className="bg-surface-secondary/40 p-4 rounded-lg border border-border-default">
+            <h2 className="font-display text-lg font-bold text-ink-primary">
+              Services Page — Hero Right-Side Media Slot
+            </h2>
+            <p className="mt-1 font-sans text-xs text-ink-secondary leading-relaxed">
+              Configure the visual media shown on the right side of the Services Page Hero. You can configure any video stream (MP4/WebM) or high-resolution image asset. Leaving Media URL blank restores the interactive architectural telemetry blueprint.
+            </p>
+          </div>
+
+          {heroStatus && (
+            <div
+              className={`p-3.5 rounded-lg border text-xs font-mono flex items-center justify-between ${
+                heroStatus.type === "success"
+                  ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-800 dark:text-emerald-300"
+                  : "bg-status-error/10 border-status-error/30 text-status-error"
+              }`}
+            >
+              <span>{heroStatus.text}</span>
+              <button
+                type="button"
+                onClick={() => setHeroStatus(null)}
+                className="underline hover:opacity-80"
+              >
+                Dismiss
+              </button>
+            </div>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            {/* Form Settings (7 Columns) */}
+            <div className="lg:col-span-7 bg-surface-primary border border-border-default rounded-xl p-6 space-y-5 shadow-xs">
+              {/* Media Type Selector */}
+              <div>
+                <label className="block text-xs font-mono uppercase tracking-wider text-ink-muted mb-2 font-semibold">
+                  Media Type
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setHeroForm({ ...heroForm, media_type: "video" })}
+                    className={`py-2.5 px-4 rounded-lg border text-xs font-mono font-semibold flex items-center justify-center gap-2 transition-all ${
+                      heroForm.media_type === "video"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border-default bg-surface-secondary text-ink-secondary hover:text-ink-primary"
+                    }`}
+                  >
+                    <span>▶ Video Stream</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHeroForm({ ...heroForm, media_type: "image" })}
+                    className={`py-2.5 px-4 rounded-lg border text-xs font-mono font-semibold flex items-center justify-center gap-2 transition-all ${
+                      heroForm.media_type === "image"
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-border-default bg-surface-secondary text-ink-secondary hover:text-ink-primary"
+                    }`}
+                  >
+                    <span>🖼 Static Image</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Media URL */}
+              <FormField
+                id="hero-media-url"
+                label="Media URL / Asset Path *"
+                hint="Relative path (e.g., /brand/henu-os.png) or HTTPS URL (e.g., direct MP4 video link or image CDN)."
+              >
+                <Input
+                  id="hero-media-url"
+                  value={heroForm.media_url}
+                  onChange={(e) => setHeroForm({ ...heroForm, media_url: e.target.value })}
+                  placeholder={
+                    heroForm.media_type === "video"
+                      ? "https://assets.henu.org/videos/architecture-demo.mp4"
+                      : "/brand/henu-os.png"
+                  }
+                  className="font-mono text-xs"
+                />
+              </FormField>
+
+              {/* Video Poster URL (Only for video) */}
+              {heroForm.media_type === "video" && (
+                <FormField
+                  id="hero-poster-url"
+                  label="Poster Thumbnail URL (Optional)"
+                  hint="Image displayed before video playback begins."
+                >
+                  <Input
+                    id="hero-poster-url"
+                    value={heroForm.poster_url || ""}
+                    onChange={(e) => setHeroForm({ ...heroForm, poster_url: e.target.value })}
+                    placeholder="/brand/henu-os.png"
+                    className="font-mono text-xs"
+                  />
+                </FormField>
+              )}
+
+              {/* Badge Label */}
+              <FormField
+                id="hero-badge"
+                label="Overlay Badge Label"
+                hint="Small uppercase monospace badge displayed at the top of the media card."
+              >
+                <Input
+                  id="hero-badge"
+                  value={heroForm.badge_label || ""}
+                  onChange={(e) => setHeroForm({ ...heroForm, badge_label: e.target.value })}
+                  placeholder="ENGINEERING STREAM // ARCHITECTURE"
+                  className="font-mono text-xs"
+                />
+              </FormField>
+
+              {/* Headline */}
+              <FormField
+                id="hero-headline"
+                label="Caption Headline (Optional)"
+                hint="Title displayed in the bottom metadata footer."
+              >
+                <Input
+                  id="hero-headline"
+                  value={heroForm.headline || ""}
+                  onChange={(e) => setHeroForm({ ...heroForm, headline: e.target.value })}
+                  placeholder="Sovereign Systems // Live Telemetry"
+                />
+              </FormField>
+
+              {/* Description */}
+              <FormField
+                id="hero-desc"
+                label="Caption Subtitle (Optional)"
+                hint="Short 1-line description displayed beneath the caption headline."
+              >
+                <Input
+                  id="hero-desc"
+                  value={heroForm.description || ""}
+                  onChange={(e) => setHeroForm({ ...heroForm, description: e.target.value })}
+                  placeholder="Deep software engineering and sovereign AI agent runtimes."
+                />
+              </FormField>
+
+              {/* Quick Presets & Actions */}
+              <div className="pt-2 border-t border-border-default/60 flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    onClick={() =>
+                      setHeroForm({
+                        media_type: "image",
+                        media_url: "/brand/henu-os.png",
+                        badge_label: "HENU OS EMBLEM",
+                        headline: "HENU OS Flagship Emblem",
+                        description: "Ultra-high definition brand identity mark.",
+                      })
+                    }
+                  >
+                    Preset: High-Res Logo
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() =>
+                      setHeroForm({
+                        media_type: "video",
+                        media_url: "",
+                        poster_url: "",
+                        badge_label: "Engineering & Architecture Lab",
+                        headline: "Sovereign Systems // Live Telemetry",
+                        description: "Deep software engineering and sovereign AI agent runtimes.",
+                      })
+                    }
+                  >
+                    Reset to Blueprint
+                  </Button>
+                </div>
+
+                <Button
+                  type="button"
+                  variant="primary"
+                  size="md"
+                  disabled={isPending}
+                  onClick={() => {
+                    startTransition(async () => {
+                      try {
+                        await updateServicesHeroSettingsAction(heroForm);
+                        setHeroStatus({
+                          type: "success",
+                          text: "Hero media settings saved successfully! Public Services page updated.",
+                        });
+                        router.refresh();
+                      } catch (err: unknown) {
+                        setHeroStatus({
+                          type: "error",
+                          text: err instanceof Error ? err.message : "Failed to save hero media.",
+                        });
+                      }
+                    });
+                  }}
+                >
+                  {isPending ? "Saving Settings..." : "Save Hero Media"}
+                </Button>
+              </div>
+            </div>
+
+            {/* Live Preview Panel (5 Columns) */}
+            <div className="lg:col-span-5 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-mono uppercase tracking-wider text-ink-muted font-bold">
+                  Live Public Preview
+                </span>
+                <span className="text-[11px] font-mono text-ink-muted">
+                  {heroForm.media_url ? `${heroForm.media_type.toUpperCase()} ACTIVE` : "INTERACTIVE BLUEPRINT"}
+                </span>
+              </div>
+
+              {/* Render the actual public component */}
+              <ServicesHeroVisual media={heroForm} />
+
+              <p className="text-[11px] font-sans text-ink-muted leading-relaxed">
+                This exact component renders on the right side of the Services Page at <code>/services</code>.
+              </p>
+            </div>
           </div>
         </div>
       )}

@@ -44,7 +44,7 @@ export async function submitEnquiryAction(raw: z.infer<typeof PublicEnquirySchem
     }
     return {
       success: false,
-      error: "Unable to process enquiry at this time. Please reach us directly at contact@henu.dev.",
+      error: "Unable to process enquiry at this time. Please reach us directly at henuospvtltd@gmail.com.",
     };
   }
 }

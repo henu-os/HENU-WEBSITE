@@ -97,8 +97,10 @@ export const Header: React.FC = () => {
 
   return (
     <header
-      className={`sticky top-0 z-40 w-full border-b transition-all duration-200 ${
-        isScrolled
+      className={`sticky top-0 z-50 w-full border-b transition-all duration-200 ${
+        isMobileMenuOpen
+          ? "border-outline-variant/30 bg-surface shadow-subtle py-3"
+          : isScrolled
           ? "border-outline-variant/30 bg-surface/95 backdrop-blur-md shadow-subtle py-2.5"
           : "border-transparent bg-surface/80 backdrop-blur-sm py-4"
       }`}
@@ -167,42 +169,42 @@ export const Header: React.FC = () => {
                     )}
                   </Link>
 
-                  {/* Mega-Menu Dropdown on Hover (Refined Mid-Tone Sovereign Purple Palette) */}
+                  {/* Mega-Menu Dropdown on Hover (Attractive Luminous Rosy Pink Palette) */}
                   {isServicesMenuOpen && (
                     <div
                       className="absolute top-full -left-28 xl:-left-24 pt-3.5 z-50 w-[780px] xl:w-[840px] max-w-[calc(100vw-3rem)] animate-in fade-in slide-in-from-top-2 duration-150"
                       role="menu"
                       aria-label="Services Catalogue"
                     >
-                      <div className="rounded-2xl border border-purple-400/30 bg-gradient-to-br from-[#452779] via-[#3a2068] to-[#311858] text-white p-6 lg:p-7 shadow-[0_25px_60px_-12px_rgba(35,12,70,0.55)] relative overflow-hidden">
-                        {/* Subtle ambient light sheen */}
-                        <div className="absolute inset-0 bg-gradient-to-b from-purple-300/[0.08] to-transparent pointer-events-none" />
+                      <div className="rounded-2xl border border-rose-200/90 bg-gradient-to-br from-[#fff1f5] via-[#fde5eb] to-[#fcd9e3] text-rose-950 p-6 lg:p-7 shadow-[0_25px_60px_-12px_rgba(225,29,72,0.18),0_4px_20px_rgba(0,0,0,0.04)] relative overflow-hidden backdrop-blur-md">
+                        {/* Subtle ambient rose sheen */}
+                        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-transparent to-rose-100/30 pointer-events-none" />
 
                         {/* Header bar */}
-                        <div className="relative flex items-center justify-between pb-4 mb-5 border-b border-purple-300/20">
-                          <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-purple-200 flex items-center gap-2">
-                            <span className="w-1.5 h-1.5 rounded-full bg-purple-300 shadow-[0_0_8px_rgba(216,180,254,0.9)]" aria-hidden="true" />
+                        <div className="relative flex items-center justify-between pb-4 mb-5 border-b border-rose-200/80">
+                          <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-rose-900 flex items-center gap-2">
+                            <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.7)]" aria-hidden="true" />
                             Architectural Capabilities Catalogue
                           </span>
                           <Link
                             href="/services"
                             onClick={() => setIsServicesMenuOpen(false)}
-                            className="group/all inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-purple-200 hover:text-white transition-colors"
+                            className="group/all inline-flex items-center gap-1.5 font-mono text-xs font-semibold text-rose-700 hover:text-rose-950 transition-colors"
                           >
-                            <span>Browse All 9 Services</span>
+                            <span>Browse All 6 Services</span>
                             <span className="group-hover/all:translate-x-0.5 transition-transform" aria-hidden="true">
                               &rarr;
                             </span>
                           </Link>
                         </div>
 
-                        {/* 4 Category Columns */}
-                        <div className="relative grid grid-cols-4 gap-5">
+                        {/* 3 Category Columns */}
+                        <div className="relative grid grid-cols-3 gap-6">
                           {SERVICES_NAV_CATEGORIES.map((category) => (
                             <div key={category.slug} className="space-y-3">
-                              <div className="font-mono text-xs font-bold uppercase tracking-wider pb-2 border-b border-purple-300/20 flex items-center gap-1.5">
-                                <span className="text-purple-300">{category.num}</span>
-                                <span className="text-purple-100">{category.name}</span>
+                              <div className="font-mono text-xs font-bold uppercase tracking-wider pb-2 border-b border-rose-200/80 flex items-center gap-1.5">
+                                <span className="text-rose-500 font-semibold">{category.num}</span>
+                                <span className="text-rose-950 font-bold">{category.name}</span>
                               </div>
                               <div className="space-y-1.5">
                                 {category.services.map((service) => (
@@ -210,15 +212,15 @@ export const Header: React.FC = () => {
                                     key={service.slug}
                                     href={`/services/${service.slug}`}
                                     onClick={() => setIsServicesMenuOpen(false)}
-                                    className="group/item block p-2.5 -mx-2 rounded-xl hover:bg-purple-900/50 hover:border-purple-300/30 border border-transparent transition-all"
+                                    className="group/item block p-2.5 -mx-2 rounded-xl hover:bg-white/85 hover:shadow-xs hover:border-rose-300/80 border border-transparent transition-all duration-150"
                                   >
-                                    <div className="text-xs font-bold text-white group-hover/item:text-purple-100 transition-colors flex items-center justify-between">
+                                    <div className="text-xs font-bold text-rose-950 group-hover/item:text-rose-700 transition-colors flex items-center justify-between">
                                       <span>{service.name}</span>
-                                      <span className="opacity-0 -translate-x-1 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all text-purple-300 text-[10px] font-mono">
+                                      <span className="opacity-0 -translate-x-1 group-hover/item:opacity-100 group-hover/item:translate-x-0 transition-all text-rose-500 text-[10px] font-mono">
                                         &rarr;
                                       </span>
                                     </div>
-                                    <p className="text-[11px] text-purple-200/80 leading-snug line-clamp-2 mt-1 font-sans group-hover/item:text-purple-100 transition-colors">
+                                    <p className="text-[11px] text-rose-900/75 leading-snug line-clamp-2 mt-1 font-sans group-hover/item:text-rose-950 transition-colors">
                                       {service.summary}
                                     </p>
                                   </Link>
@@ -229,15 +231,15 @@ export const Header: React.FC = () => {
                         </div>
 
                         {/* Footer bar */}
-                        <div className="relative mt-6 pt-3.5 border-t border-purple-300/20 flex items-center justify-between text-xs bg-[#281347] -mx-6 -mb-6 lg:-mx-7 lg:-mb-7 px-6 lg:px-7 py-3.5">
-                          <div className="flex items-center gap-2 text-purple-200/85 text-[11px] font-mono">
-                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-purple-300 shadow-[0_0_6px_rgba(216,180,254,0.7)]" aria-hidden="true" />
+                        <div className="relative mt-6 pt-3.5 border-t border-rose-200/80 flex items-center justify-between text-xs bg-gradient-to-r from-[#fce2e8] to-[#fadbe3] -mx-6 -mb-6 lg:-mx-7 lg:-mb-7 px-6 lg:px-7 py-3.5">
+                          <div className="flex items-center gap-2 text-rose-900/85 text-[11px] font-mono">
+                            <span className="inline-block w-1.5 h-1.5 rounded-full bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.6)]" aria-hidden="true" />
                             <span>Zero consulting theater · Sovereign engineering & IP ownership</span>
                           </div>
                           <Link
                             href="/contact"
                             onClick={() => setIsServicesMenuOpen(false)}
-                            className="font-mono text-xs font-semibold text-purple-200 hover:text-white hover:underline flex items-center gap-1.5 transition-colors"
+                            className="font-mono text-xs font-semibold text-rose-800 hover:text-rose-950 hover:underline flex items-center gap-1.5 transition-colors"
                           >
                             <span>Initiate project dialogue</span>
                             <span aria-hidden="true">&rarr;</span>
@@ -312,7 +314,8 @@ export const Header: React.FC = () => {
         <div
           id="mobile-navigation"
           ref={menuRef}
-          className="fixed inset-0 top-[65px] z-50 flex flex-col bg-surface px-6 py-8 overflow-y-auto lg:hidden animate-in fade-in slide-in-from-top-4 duration-200"
+          className="absolute inset-x-0 top-full h-[calc(100dvh-100%)] flex flex-col bg-surface px-6 py-8 overflow-y-auto lg:hidden border-t border-outline-variant/20 shadow-elevated"
+          style={{ backgroundColor: "var(--surface)" }}
         >
           <nav className="flex flex-col space-y-3" aria-label="Mobile Navigation">
             {siteConfig.primaryNavigation.map((item) => {

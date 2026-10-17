@@ -8,6 +8,7 @@ import { Container, Section } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/link-button";
 import { ServiceInteractiveCard } from "@/components/features/services/service-interactive-card";
+import { HomeScrollDragonEye } from "@/components/features/brand-animation/home-scroll-dragon-eye";
 
 export const revalidate = 3600;
 
@@ -81,6 +82,9 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+
+      {/* Global Interactive Void Particle Eye & Trailing Rotating Dragon Scroll Coordinator */}
+      <HomeScrollDragonEye />
 
       {/* 1. Opening / Hero (HOME-001) */}
       <HomeHero content={content} />

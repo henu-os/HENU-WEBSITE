@@ -5,6 +5,7 @@ import {
   type UpdateServiceInput,
   type CreateServiceCategoryInput,
   type UpdateServiceCategoryInput,
+  type ServicesHeroSettings,
 } from "../repositories/service.repository";
 import { slugRedirectRepository } from "../repositories/slug-redirect.repository";
 import { auditLogRepository } from "../repositories/audit-log.repository";
@@ -384,6 +385,34 @@ export class ServiceService {
     });
 
     revalidationService.revalidate("services");
+  }
+
+  // ==========================================
+  // HERO MEDIA SETTINGS
+  // ==========================================
+
+  async getServicesHeroSettings(): Promise<ServicesHeroSettings> {
+    return serviceRepository.getHeroSettings();
+  }
+
+  async updateServicesHeroSettings(
+    settings: ServicesHeroSettings,
+    admin: AdminSession
+  ): Promise<ServicesHeroSettings> {
+    const updated = await serviceRepository.updateHeroSettings(settings);
+
+    await auditLogRepository.record({
+      actor_id: admin.id,
+      actor_email: admin.email,
+      action: "SERVICES_HERO_MEDIA_UPDATE",
+      entity_type: "services_hero_media",
+      entity_id: "services-hero",
+      summary: `Updated services hero media (${settings.media_type}: ${settings.media_url || "Default Blueprint"})`,
+      metadata: { media_type: settings.media_type, media_url: settings.media_url },
+    });
+
+    revalidationService.revalidate("services");
+    return updated;
   }
 }
 

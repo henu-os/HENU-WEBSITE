@@ -24,7 +24,7 @@ describe("ServiceIndexLedger Component (SERV-001)", () => {
     ];
 
     const html = renderToStaticMarkup(<ServiceIndexLedger categoryGroups={group} />);
-    expect(html).toContain("01 // Category");
+    expect(html).toContain("01 // CATEGORY");
     expect(html).toContain("Build");
     expect(html).toContain("01.01");
     expect(html).toContain("Website Development");
@@ -44,26 +44,32 @@ describe("ServiceIndexLedger Component (SERV-001)", () => {
     ];
 
     const html = renderToStaticMarkup(<ServiceIndexLedger categoryGroups={groups} />);
-    expect(html).toContain("01 // Category");
+    expect(html).toContain("01 // CATEGORY");
     expect(html).toContain("Build");
-    expect(html).toContain("02 // Category");
+    expect(html).toContain("02 // CATEGORY");
     expect(html).toContain("Intelligence");
     expect(html).toContain("AI Automation");
   });
 
   it("renders governance badge on sensitive services requiring disclaimer (SERV-004)", () => {
+    const sensitiveService = {
+      ...BASELINE_SERVICES[0]!,
+      id: "test-disclaimer",
+      name: "Compliance Audit Service",
+      requires_disclaimer: true,
+      disclaimer_block: "Test legal disclaimer statement.",
+    };
     const sensitiveGroup = [
       {
-        category: BASELINE_CATEGORIES[3]!,
-        services: BASELINE_SERVICES.filter((s) => s.category_id === BASELINE_CATEGORIES[3]!.id),
+        category: BASELINE_CATEGORIES[0]!,
+        services: [sensitiveService],
       },
     ];
 
     const html = renderToStaticMarkup(<ServiceIndexLedger categoryGroups={sensitiveGroup} />);
-    expect(html).toContain("Legal Services");
+    expect(html).toContain("Compliance Audit Service");
     // The component renders a "Notice" badge for disclaimer-required services
     expect(html).toContain("Notice");
-    expect(html).toContain("Funding Solutions");
   });
 
   it("includes contextual enquiry link preserving selected service (SERV-001)", () => {

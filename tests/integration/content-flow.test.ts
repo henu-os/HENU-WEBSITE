@@ -43,7 +43,7 @@ describe("Content Flow & Repository Integration (CORE-008, CORE-009, HOME-001)",
   it("retrieves baseline site settings with contact and legal information", async () => {
     const settings = await siteSettingsRepository.getSettings();
     expect(settings).toBeDefined();
-    expect(settings.contact_email).toBe("contact@henu.org");
+    expect(settings.contact_email).toBe("henuospvtltd@gmail.com");
     expect(settings.calendly_url).toContain("calendly.com");
   });
 

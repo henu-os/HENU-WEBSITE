@@ -50,7 +50,7 @@ export default async function QuickBuyPage() {
               <div className="pt-2 flex flex-wrap items-center gap-3 font-mono text-xs text-ink-muted border-t border-border-default/60">
                 <span className="flex items-center gap-1.5 text-ink-primary font-semibold">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                  13 Verified Solutions
+                  {items.length} Verified Solutions
                 </span>
                 <span aria-hidden="true" className="text-border-default">&bull;</span>
                 <span className="flex items-center gap-1.5">

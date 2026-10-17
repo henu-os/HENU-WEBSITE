@@ -66,7 +66,7 @@ export default async function ProductsHubPage() {
   return (
     <div className="w-full relative">
       {/* 1. HERO WITH AMBIENT MESH & INTERACTIVE LAB VISUALIZER */}
-      <header className="relative pt-12 pb-16 lg:pt-20 lg:pb-24 border-b border-border-default bg-surface-primary overflow-hidden">
+      <header className="relative pt-12 pb-8 sm:pb-12 lg:pt-16 lg:pb-12 border-b border-border-default bg-surface-primary overflow-hidden">
         {/* Living Ambient Cursor Mesh */}
         <AmbientLivingMesh variant="pine" />
 
@@ -114,7 +114,7 @@ export default async function ProductsHubPage() {
       </header>
 
       {/* 2. ECOSYSTEM MODEL (HOME-002) */}
-      <Section id="ecosystem" spacing="lg" className="border-b border-border-default bg-surface-secondary/20">
+      <Section id="ecosystem" spacing="md" className="border-b border-border-default bg-surface-secondary/20">
         <Container size="lg">
           <div className="max-w-3xl mb-10 space-y-2">
             <span className="font-mono text-xs uppercase tracking-wider text-ink-muted">
@@ -135,7 +135,7 @@ export default async function ProductsHubPage() {
 
       {/* 3. FLAGSHIP PRESENTATION: HENU OS (Liquid Cyber Cyan & Titanium Slate) */}
       {flagshipOs && (
-        <Section spacing="lg" className="border-b border-border-default bg-surface-primary">
+        <Section spacing="md" className="border-b border-border-default bg-surface-primary">
           <Container size="lg">
             <div className="p-8 sm:p-10 lg:p-12 rounded-3xl border-2 border-cyan-500/35 bg-gradient-to-br from-slate-950 via-slate-900 to-cyan-950 text-white hover:border-cyan-400/60 hover:shadow-[0_24px_64px_-16px_rgba(6,182,212,0.25)] transition-all duration-300 relative overflow-hidden group">
               {/* Subtle Ambient Radial Light */}
@@ -212,7 +212,7 @@ export default async function ProductsHubPage() {
       )}
 
       {/* 4. ASYMMETRIC DISTINCT PRESENTATIONS FOR PEER PRODUCTS */}
-      <Section spacing="lg" className="border-b border-border-default bg-surface-secondary/20">
+      <Section spacing="md" className="border-b border-border-default bg-surface-secondary/20">
         <Container size="lg">
           <div className="max-w-3xl mb-12 space-y-2">
             <span className="font-mono text-xs uppercase tracking-wider text-ink-muted">
@@ -352,7 +352,7 @@ export default async function ProductsHubPage() {
 
       {/* 5. DYNAMIC EXTENSION: ADDITIONAL PUBLISHED PRODUCTS */}
       {additionalProducts.length > 0 && (
-        <Section spacing="lg" className="border-b border-border-default bg-surface-primary">
+        <Section spacing="md" className="border-b border-border-default bg-surface-primary">
           <Container size="lg">
             <div className="max-w-3xl mb-8 space-y-2">
               <span className="font-mono text-xs uppercase tracking-wider text-ink-muted">
@@ -395,7 +395,7 @@ export default async function ProductsHubPage() {
 
       {/* 6. DEPLOYED SYSTEMS & CASE STUDIES (PORTFOLIO INTEGRATION) */}
       {portfolioProjects.length > 0 && (
-        <Section id="deployed-solutions" spacing="lg" className="border-t border-border-default bg-surface-secondary/20">
+        <Section id="deployed-solutions" spacing="md" className="border-t border-border-default bg-surface-secondary/20">
           <Container size="lg">
             <div className="max-w-3xl mb-10 space-y-3">
               <div className="inline-flex items-center gap-2">
@@ -482,13 +482,14 @@ export default async function ProductsHubPage() {
       )}
 
       {/* 7. ETHICAL / TECHNICAL INTEGRITY NOTICE */}
-      <Section spacing="md" className="bg-surface-primary">
+      <Section spacing="none" className="py-8 sm:py-10 border-t border-border-default bg-surface-secondary/40">
         <Container size="lg">
-          <div className="p-6 rounded-lg border border-border-default bg-surface-secondary/30 text-xs text-ink-muted space-y-2">
-            <span className="font-mono uppercase tracking-wider text-ink-secondary font-medium">
+          <div className="mx-auto max-w-2xl flex flex-col items-center text-center space-y-3">
+            <span className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-widest text-ink-secondary bg-surface-primary px-3 py-1 rounded-full border border-border-default shadow-xs">
+              <span className="w-1.5 h-1.5 rounded-full bg-ink-muted" />
               Technical Integrity Commitment
             </span>
-            <p>
+            <p className="text-xs text-ink-muted leading-relaxed font-sans">
               HENU adheres strictly to factual product documentation (Document 01 §1). All products in
               active development undergo systematic architecture verification before public release.
               Unpublished or draft capabilities are sequestered until verified.

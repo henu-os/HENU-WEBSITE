@@ -10,9 +10,10 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminServicesPage() {
-  const [{ services }, categories] = await Promise.all([
+  const [{ services }, categories, heroSettings] = await Promise.all([
     serviceService.listAllServices(),
     serviceService.getCategories(),
+    serviceService.getServicesHeroSettings(),
   ]);
 
   return (
@@ -23,7 +24,7 @@ export default async function AdminServicesPage() {
             Services Management
           </h1>
           <p className="mt-1 font-sans text-sm text-ink-secondary">
-            Manage architectural services, categories, structured narrative blocks, disclaimer requirements, and publication states (SERV-003).
+            Manage architectural services, categories, hero media visuals, and publication states (SERV-003).
           </p>
         </div>
 
@@ -34,7 +35,11 @@ export default async function AdminServicesPage() {
         </div>
       </div>
 
-      <ServiceListClient initialServices={services} initialCategories={categories} />
+      <ServiceListClient
+        initialServices={services}
+        initialCategories={categories}
+        initialHeroSettings={heroSettings}
+      />
     </div>
   );
 }

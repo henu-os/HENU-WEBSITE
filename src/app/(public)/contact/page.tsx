@@ -3,11 +3,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Container } from "@/components/ui/container";
 import { siteSettingsRepository } from "@/server/repositories/site-settings.repository";
+import { siteConfig } from "@/config/site";
 import { serviceRepository } from "@/server/repositories/service.repository";
 import { productRepository } from "@/server/repositories/product.repository";
 import { generateTimingToken } from "@/server/security/timing-token";
 import { ContactFormClient } from "./contact-form-client";
 import { ContactHeroHeadline } from "@/components/features/contact/contact-hero-headline";
+import { CorporateDeskMap } from "@/components/features/contact/corporate-desk-map";
 import { AmbientLivingMesh } from "@/components/ui/ambient-living-mesh";
 
 export const dynamic = "force-dynamic";
@@ -65,7 +67,7 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
     settings.calendly_url && settings.calendly_url.trim() !== "https://calendly.com"
       ? settings.calendly_url
       : "https://calendly.com/henuos";
-  const contactEmail = settings.contact_email || "contact@henu.dev";
+  const contactEmail = settings.contact_email || siteConfig.contact.email;
 
   return (
     <div className="relative py-12 sm:py-20 overflow-hidden">
@@ -270,7 +272,10 @@ export default async function ContactPage({ searchParams }: ContactPageProps) {
           </div>
         </div>
 
-        {/* 3. Alternative Diplomatic Transmission Channels */}
+        {/* 3. Geographic Coordinates & Corporate Desk Map (Centered & Palette-Themed) */}
+        <CorporateDeskMap />
+
+        {/* 4. Alternative Diplomatic Transmission Channels */}
         <section
           aria-label="Alternative Sovereign Transmission Channels"
           className="border border-[#9f1239]/25 rounded-2xl p-8 sm:p-12 bg-gradient-to-br from-[#faf7f6] to-[#f4ebeb] dark:from-[#140e11] dark:to-[#0d090b] space-y-6"

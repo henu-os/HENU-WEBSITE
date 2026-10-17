@@ -11,6 +11,24 @@ export type UpdateServiceCategoryInput = Database["public"]["Tables"]["service_c
 export type CreateServiceInput = Database["public"]["Tables"]["services"]["Insert"];
 export type UpdateServiceInput = Database["public"]["Tables"]["services"]["Update"];
 
+export interface ServicesHeroSettings {
+  media_type: "image" | "video";
+  media_url: string;
+  poster_url?: string;
+  badge_label?: string;
+  headline?: string;
+  description?: string;
+}
+
+export const DEFAULT_SERVICES_HERO_SETTINGS: ServicesHeroSettings = {
+  media_type: "video",
+  media_url: "",
+  poster_url: "",
+  badge_label: "Engineering & Architecture Lab",
+  headline: "Sovereign Systems // Live Telemetry",
+  description: "Deep software engineering, distributed compute kernels, and sovereign AI agent runtimes.",
+};
+
 /**
  * Authentic Baseline Categories approved in Document 04 §14.3.
  */
@@ -39,15 +57,6 @@ export const BASELINE_CATEGORIES: ServiceCategory[] = [
     name: "Brand & Growth",
     description: "Cohesive technical identity, interface precision, and data-driven client acquisition.",
     display_order: 3,
-    created_at: "2026-01-01T00:00:00Z",
-    updated_at: "2026-01-01T00:00:00Z",
-  },
-  {
-    id: "c4444444-4444-4444-4444-444444444444",
-    slug: "business-foundations",
-    name: "Business Foundations",
-    description: "Structural documentation, legal compliance assistance, and capital readiness coordination.",
-    display_order: 4,
     created_at: "2026-01-01T00:00:00Z",
     updated_at: "2026-01-01T00:00:00Z",
   },
@@ -366,163 +375,6 @@ export const BASELINE_SERVICES: Service[] = [
     display_order: 2,
     seo_title: "Digital Marketing & Technical SEO Strategy | HENU",
     seo_description: "Data-driven technical SEO, ethical digital marketing, and organic audience acquisition for technology enterprises.",
-    published_at: "2026-01-01T00:00:00Z",
-    deleted_at: null,
-    created_by: null,
-    updated_by: null,
-    created_at: "2026-01-01T00:00:00Z",
-    updated_at: "2026-01-01T00:00:00Z",
-  },
-
-  // --- BUSINESS FOUNDATIONS ---
-  {
-    id: "s4444444-4444-4444-4444-444444444441",
-    category_id: "c4444444-4444-4444-4444-444444444444",
-    slug: "documentation-and-startup-services",
-    name: "Documentation & Startup Services",
-    summary: "Structured technical documentation, architecture specifications, and investor-ready operational artifacts.",
-    status: "published",
-    requires_disclaimer: false,
-    disclaimer_block: null,
-    problem_block: {
-      headline: "The Documentation Gap",
-      description: "Early-stage technology ventures often struggle with undocumented architectures, ambiguous technical roadmaps, and inadequate institutional diligence materials.",
-      points: [
-        "Knowledge silos preventing efficient team scaling.",
-        "Failed institutional technical due diligence.",
-        "Unclear system boundaries delaying development milestones.",
-      ],
-    },
-    capability_block: {
-      headline: "Documentation Capabilities",
-      description: "PRD authoring, technical architecture blueprints, security policy documentation, and developer portal engineering.",
-      attributes: ["Architectural clarity", "Diligence readiness", "Systematic version control", "Standard-compliant formatting"],
-    },
-    approach_block: {
-      headline: "Documentation Approach",
-      description: "We treat documentation as an engineered product: structured, version-controlled Markdown artifacts with clear ownership and explicit verification criteria.",
-    },
-    solution_block: {
-      headline: "The Delivered Solution",
-      description: "Audit-grade technical collateral that satisfies enterprise clients, institutional partners, and technical leadership.",
-    },
-    outcome_block: {
-      headline: "Operational Outcomes",
-      description: "Frictionless developer onboarding, seamless technical diligence, and durable institutional knowledge retention.",
-    },
-    faq_items: [
-      {
-        question: "What types of technical documentation do you deliver?",
-        answer: "We synthesize Product Requirement Documents (PRDs), Technical Architecture Blueprints, Security Architecture Specifications, and API Reference Guides.",
-      },
-    ],
-    display_order: 1,
-    seo_title: "Documentation & Startup Services — Technical Specifications | HENU",
-    seo_description: "Audit-ready technical documentation, architectural specifications, and diligence materials for technology ventures.",
-    published_at: "2026-01-01T00:00:00Z",
-    deleted_at: null,
-    created_by: null,
-    updated_by: null,
-    created_at: "2026-01-01T00:00:00Z",
-    updated_at: "2026-01-01T00:00:00Z",
-  },
-  {
-    id: "s4444444-4444-4444-4444-444444444442",
-    category_id: "c4444444-4444-4444-4444-444444444444",
-    slug: "legal-services",
-    name: "Legal Services",
-    summary: "Corporate documentation coordination, intellectual property filing assistance, and compliance framework alignment.",
-    status: "published",
-    requires_disclaimer: true,
-    disclaimer_block:
-      "HENU provides corporate documentation coordination, technology compliance assistance, and administrative synthesis. HENU is not a law firm and does not provide legal representation, formal legal opinions, or guaranteed regulatory outcomes. All corporate filings, statutory contracts, and binding legal terms are subject to independent review by accredited legal practitioners.",
-    problem_block: {
-      headline: "Compliance & Governance Coordination",
-      description: "Emerging technology initiatives operate in complex regulatory environments where misaligned documentation risks administrative delay and intellectual property ambiguity.",
-      points: [
-        "Unclear intellectual property assignment across contributors.",
-        "Uncoordinated corporate records and compliance documentation.",
-        "Complex regulatory filings requiring structured administrative preparation.",
-      ],
-    },
-    capability_block: {
-      headline: "Coordination Capabilities",
-      description: "Corporate document organization, IP assignment tracking matrices, open-source license audits, and administrative coordination support.",
-      attributes: ["Document tracking", "IP assignment matrices", "License compliance audits", "Administrative coordination"],
-    },
-    approach_block: {
-      headline: "Operational Approach",
-      description: "We work alongside designated accredited legal counsel to assemble, organize, and structure technical and operational records required for compliance filings.",
-    },
-    solution_block: {
-      headline: "The Coordinated Solution",
-      description: "A methodical administrative governance trail that organizes corporate records and facilitates orderly legal review.",
-    },
-    outcome_block: {
-      headline: "Governance Outcomes",
-      description: "Clean administrative audit trails, organized corporate registers, and structured documentation ready for legal sign-off.",
-    },
-    faq_items: [
-      {
-        question: "Is HENU a legal advisory firm?",
-        answer: "No. HENU provides administrative, technical, and operational documentation coordination. All formal legal advice is provided by independent licensed legal practitioners.",
-      },
-    ],
-    display_order: 2,
-    seo_title: "Legal Services & Corporate Compliance Coordination | HENU",
-    seo_description: "Administrative coordination and documentation support for corporate governance and intellectual property tracking.",
-    published_at: "2026-01-01T00:00:00Z",
-    deleted_at: null,
-    created_by: null,
-    updated_by: null,
-    created_at: "2026-01-01T00:00:00Z",
-    updated_at: "2026-01-01T00:00:00Z",
-  },
-  {
-    id: "s4444444-4444-4444-4444-444444444443",
-    category_id: "c4444444-4444-4444-4444-444444444444",
-    slug: "funding-solutions",
-    name: "Funding Solutions",
-    summary: "Grant proposal architecture, financial model engineering, and non-dilutive capital readiness coordination.",
-    status: "published",
-    requires_disclaimer: true,
-    disclaimer_block:
-      "HENU assists organizations with technical documentation, milestone structuring, and proposal preparation for institutional grants and research capital readiness. HENU is not an investment broker, registered financial advisor, or capital guarantor, and makes no claims or guarantees of funding approvals, investment sums, or investor commitments. Funding decisions remain solely at the discretion of respective granting authorities and investors.",
-    problem_block: {
-      headline: "Capital Readiness Challenges",
-      description: "Technology ventures frequently miss institutional grant and research funding opportunities due to poorly articulated technical specifications and non-compliant milestone projections.",
-      points: [
-        "Inadequately structured technical merit narratives.",
-        "Non-compliant research expenditure frameworks.",
-        "Lack of verifiable engineering milestone roadmaps.",
-      ],
-    },
-    capability_block: {
-      headline: "Readiness Capabilities",
-      description: "Grant proposal technical architecture, R&D milestone roadmap structuring, budget expenditure modeling, and institutional diligence synthesis.",
-      attributes: ["Technical grant drafting", "Milestone roadmapping", "Budget framework modeling", "Diligence dossier assembly"],
-    },
-    approach_block: {
-      headline: "Readiness Approach",
-      description: "We align genuine technical capabilities with institutional grant evaluation rubrics, structuring proposals with scientific clarity and verifiable milestones.",
-    },
-    solution_block: {
-      headline: "The Delivered Solution",
-      description: "Comprehensive institutional grant dossiers and capital readiness materials that articulate technical ambition with absolute precision.",
-    },
-    outcome_block: {
-      headline: "Readiness Outcomes",
-      description: "High-clarity institutional submissions with structured milestone governance and transparent expenditure frameworks.",
-    },
-    faq_items: [
-      {
-        question: "Does HENU guarantee grant funding approvals?",
-        answer: "No. Funding decisions are made independently by granting authorities. HENU assists solely with technical documentation, proposal structure, and diligence preparation.",
-      },
-    ],
-    display_order: 3,
-    seo_title: "Funding Solutions — Grant Architecture & Capital Readiness | HENU",
-    seo_description: "Technical proposal architecture and institutional grant readiness coordination for technology ventures.",
     published_at: "2026-01-01T00:00:00Z",
     deleted_at: null,
     created_by: null,
@@ -1068,6 +920,21 @@ export class ServiceRepository extends BaseRepository {
         details: error.message,
       });
     }
+  }
+
+  /**
+   * Retrieves services hero media settings.
+   */
+  async getHeroSettings(): Promise<ServicesHeroSettings> {
+    return localFileStore.get("services_hero_settings", DEFAULT_SERVICES_HERO_SETTINGS);
+  }
+
+  /**
+   * Updates services hero media settings.
+   */
+  async updateHeroSettings(settings: ServicesHeroSettings): Promise<ServicesHeroSettings> {
+    localFileStore.set("services_hero_settings", settings);
+    return settings;
   }
 }
 

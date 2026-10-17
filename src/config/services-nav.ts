@@ -68,26 +68,4 @@ export const SERVICES_NAV_CATEGORIES: ServiceCategoryNav[] = [
       },
     ],
   },
-  {
-    num: "04",
-    name: "Foundations",
-    slug: "business-foundations",
-    services: [
-      {
-        slug: "documentation-and-startup-services",
-        name: "Documentation & Startup",
-        summary: "Audit-ready architectural specifications, PRDs, and technical diligence dossiers.",
-      },
-      {
-        slug: "legal-services",
-        name: "Legal Services",
-        summary: "Corporate records coordination, IP tracking matrices, and compliance support.",
-      },
-      {
-        slug: "funding-solutions",
-        name: "Funding Solutions",
-        summary: "Grant proposal architecture, financial model engineering, and capital readiness.",
-      },
-    ],
-  },
 ];
