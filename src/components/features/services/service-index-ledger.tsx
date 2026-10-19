@@ -230,9 +230,10 @@ export function ServiceIndexLedger({ categoryGroups }: ServiceIndexLedgerProps) 
                           href={`/services/${service.slug}`}
                           variant="outline"
                           size="sm"
-                          className="w-full sm:w-auto lg:w-full justify-center group-hover:border-ink-primary/50 group-hover:bg-surface-secondary transition-all"
+                          className="w-full sm:w-auto lg:w-full justify-center bg-amber-500/10 hover:bg-amber-500/20 text-amber-950 dark:text-amber-200 border-amber-400/70 hover:border-amber-600 dark:border-amber-600/70 font-semibold shadow-xs transition-all group/btn"
                         >
-                          Architecture Details &rarr;
+                          <span>Architecture Details</span>
+                          <span className="transition-transform duration-200 group-hover/btn:translate-x-1 text-amber-700 dark:text-amber-400 font-bold ml-1.5">&rarr;</span>
                         </LinkButton>
 
                         <Link
