@@ -29,7 +29,12 @@ export default async function AdminServicesPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <LinkButton href="/admin/services/new" variant="primary" size="md">
+          <LinkButton
+            href="/admin/services/new"
+            variant="primary"
+            size="md"
+            className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white shadow-[0_4px_14px_rgba(99,102,241,0.25)] border-0 font-semibold"
+          >
             + New Service
           </LinkButton>
         </div>

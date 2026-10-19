@@ -214,7 +214,7 @@ export default function SitemapPage() {
               {SERVICES_NAV_CATEGORIES.map((category) => (
                 <div key={category.slug} className="space-y-3">
                   <h3 className="font-mono text-xs font-semibold uppercase tracking-wider text-ink-primary border-b border-border-default pb-1">
-                    {category.num} // {category.name}
+                    {category.num} {"//"} {category.name}
                   </h3>
                   <ul className="space-y-3 text-xs list-none p-0">
                     {category.services.map((service) => (

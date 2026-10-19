@@ -18,6 +18,7 @@ const updateHomeSchema = z.object({
     (target) => target.startsWith("/") || target.startsWith("https://"),
     "Target must be internal path or https:// URL."
   ),
+  hero_image_url: z.string().trim().optional().nullable(),
   flagship_headline: z.string().trim().min(1),
   flagship_summary: z.string().trim().min(1),
   services_intro: z.string().trim().min(1),

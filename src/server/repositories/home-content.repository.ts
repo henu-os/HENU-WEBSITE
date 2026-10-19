@@ -16,6 +16,7 @@ const DEFAULT_HOME_CONTENT: HomeContent = {
   hero_primary_cta_target: "/products",
   hero_secondary_cta_label: "Our Services",
   hero_secondary_cta_target: "/services",
+  hero_image_url: "/brand/henu-os.png",
   flagship_headline: "HENU OS — The Flagship Operating System",
   flagship_summary:
     "HENU OS is our flagship operating system, providing a secure, performant foundation designed for developers and technical creators.",

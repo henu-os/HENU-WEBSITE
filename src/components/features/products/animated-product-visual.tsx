@@ -274,7 +274,7 @@ export function AnimatedProductVisual({ slug, className = "" }: AnimatedProductV
 
             {/* Typing Code Lines */}
             <div className="font-mono text-[9px] leading-tight space-y-1 text-slate-300">
-              <div className="text-slate-500 text-[8px]">// constructing logo via AST...</div>
+              <div className="text-slate-500 text-[8px]">{"// constructing logo via AST..."}</div>
               <div className="text-indigo-300 font-medium truncate">
                 <span className="text-pink-400">&gt; </span>
                 {currentSnippet.text}

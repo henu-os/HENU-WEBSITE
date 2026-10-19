@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { Product } from "@/types/domain";
 import { createProductAction, updateProductAction } from "@/server/actions/product.actions";
+import { uploadMediaAction } from "@/server/actions/media.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -19,6 +21,7 @@ interface ProductFormClientProps {
 export function ProductFormClient({ initialProduct }: ProductFormClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isUploading, startUploadTransition] = useTransition();
 
   const isEditing = Boolean(initialProduct);
 
@@ -27,6 +30,7 @@ export function ProductFormClient({ initialProduct }: ProductFormClientProps) {
     slug: initialProduct?.slug || "",
     tagline: initialProduct?.tagline || "",
     summary: initialProduct?.summary || "",
+    image_url: (initialProduct as any)?.image_url || "",
     status: initialProduct?.status || "draft",
     status_label: initialProduct?.status_label || "in_development",
     hue_key: initialProduct?.hue_key || "os",
@@ -52,6 +56,33 @@ export function ProductFormClient({ initialProduct }: ProductFormClientProps) {
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("altText", `${formData.name || "HENU Product"} Image Asset`);
+    fd.append("isDecorative", "false");
+
+    startUploadTransition(async () => {
+      try {
+        const result = await uploadMediaAction(fd);
+        if (result.success && result.asset) {
+          const uploadedUrl = result.publicUrl || `/${result.asset.storage_key}`;
+          setFormData((prev) => ({ ...prev, image_url: uploadedUrl }));
+          setStatusMessage({
+            type: "success",
+            text: `Image "${result.asset.original_filename}" uploaded successfully.`,
+          });
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to upload image.";
+        setStatusMessage({ type: "error", text: msg });
+      }
+    });
+  };
 
   const addCapability = () => {
     setCapabilities([...capabilities, { title: "", description: "" }]);
@@ -87,6 +118,7 @@ export function ProductFormClient({ initialProduct }: ProductFormClientProps) {
       try {
         const payload = {
           ...formData,
+          image_url: formData.image_url.trim() ? formData.image_url.trim() : null,
           capabilities: capabilities.filter((c) => c.title.trim().length > 0),
           seo_title: formData.seo_title.trim() ? formData.seo_title : null,
           seo_description: formData.seo_description.trim() ? formData.seo_description : null,
@@ -256,7 +288,150 @@ export function ProductFormClient({ initialProduct }: ProductFormClientProps) {
         </div>
       </div>
 
-      {/* 2. CALL-TO-ACTION & INTEGRITY VALIDATION */}
+      {/* 2. PRODUCT VISUAL ASSET & IMAGE */}
+      <div className="p-6 rounded-lg border border-border-default bg-surface-primary space-y-6">
+        <div className="flex items-center justify-between border-b border-border-default pb-3">
+          <div>
+            <h2 className="font-serif text-lg text-ink-primary font-medium">
+              Product Visual Asset / Card Image
+            </h2>
+            <p className="text-xs text-ink-muted mt-0.5">
+              Replaces simulated animations with an authentic product screenshot, brand visual, or architectural graphic.
+            </p>
+          </div>
+          <Badge variant="outline" size="sm">
+            Public Card Media
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="lg:col-span-7 space-y-4">
+            {/* File Upload Button */}
+            <FormField
+              id="product_image_file"
+              label="Upload Image File"
+              hint="Upload PNG, WebP, JPG, or SVG directly to local storage / CDN."
+            >
+              <div className="flex items-center gap-3">
+                <input
+                  id="product_image_file"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  onChange={handleImageUpload}
+                  disabled={isUploading}
+                  className="block w-full text-xs text-ink-muted file:mr-4 file:py-2 file:px-4 file:rounded-md file:border file:border-border-default file:text-xs file:font-mono file:bg-surface-secondary file:text-ink-primary hover:file:bg-surface-tertiary cursor-pointer disabled:opacity-50"
+                />
+              </div>
+              {isUploading && (
+                <p className="text-xs text-brand-pine animate-pulse font-mono mt-1">
+                  Uploading image to media library...
+                </p>
+              )}
+            </FormField>
+
+            {/* Direct Image URL input */}
+            <FormField
+              id="image_url"
+              label="Or Direct Image Path / URL"
+              hint="Enter an absolute URL or local path (e.g. /brand/henu-ai.png)"
+            >
+              <div className="flex items-center gap-2">
+                <Input
+                  id="image_url"
+                  value={formData.image_url}
+                  onChange={(e) => setFormData({ ...formData, image_url: e.target.value })}
+                  placeholder="/brand/henu-os.png or https://..."
+                />
+                {formData.image_url && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setFormData({ ...formData, image_url: "" })}
+                    className="text-xs text-ink-muted hover:text-red-600"
+                  >
+                    Clear
+                  </Button>
+                )}
+              </div>
+            </FormField>
+
+            {/* Quick Brand Presets */}
+            <div>
+              <p className="text-xs font-mono uppercase tracking-wider text-ink-muted mb-2">
+                Quick Brand Presets:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  { label: "HENU OS", path: "/brand/henu-os.png" },
+                  { label: "HENU AI", path: "/brand/henu-ai.png" },
+                  { label: "HENU PA", path: "/brand/henu-pa.png" },
+                  { label: "HENU IDE", path: "/brand/henu-ide.png" },
+                  { label: "Dragon Emblem", path: "/brand/henu-dragon.png" },
+                  { label: "Ocular Eye", path: "/brand/henu-eye-1120.png" },
+                ].map((preset) => (
+                  <button
+                    key={preset.path}
+                    type="button"
+                    onClick={() => setFormData({ ...formData, image_url: preset.path })}
+                    className={`px-2.5 py-1 text-xs rounded border transition-colors font-mono ${
+                      formData.image_url === preset.path
+                        ? "border-brand-pine bg-brand-pine/10 text-brand-pine font-medium"
+                        : "border-border-default bg-surface-secondary text-ink-secondary hover:bg-surface-tertiary"
+                    }`}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Live Preview Card */}
+          <div className="lg:col-span-5 flex flex-col items-center justify-center p-4 rounded-lg border border-dashed border-border-default bg-surface-secondary/40 min-h-[220px]">
+            {formData.image_url ? (
+              <div className="w-full space-y-2">
+                <div className="relative aspect-[16/10] w-full rounded-md overflow-hidden bg-black/40 border border-border-default shadow-sm flex items-center justify-center">
+                  <Image
+                    src={formData.image_url}
+                    alt={formData.name || "Product preview"}
+                    fill
+                    className="object-contain p-4"
+                    unoptimized={formData.image_url.startsWith("http") || formData.image_url.endsWith(".svg")}
+                  />
+                </div>
+                <div className="flex items-center justify-between text-[11px] text-ink-muted font-mono truncate px-1">
+                  <span className="truncate">{formData.image_url}</span>
+                  <span className="text-brand-pine shrink-0">Live Active</span>
+                </div>
+              </div>
+            ) : (
+              <div className="text-center p-6 space-y-2">
+                <div className="w-12 h-12 rounded-full border border-border-default bg-surface-tertiary/60 mx-auto flex items-center justify-center text-ink-muted">
+                  <svg
+                    className="w-6 h-6 stroke-current"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    strokeWidth="1.5"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                    />
+                  </svg>
+                </div>
+                <p className="text-xs font-mono text-ink-muted">No image uploaded yet</p>
+                <p className="text-[11px] text-ink-muted max-w-[200px] mx-auto">
+                  Upload an image or pick a preset to display on product cards.
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 3. CALL-TO-ACTION & INTEGRITY VALIDATION */}
       <div className="p-6 rounded-lg border border-border-default bg-surface-primary space-y-6">
         <div className="flex items-center justify-between border-b border-border-default pb-3">
           <h2 className="font-serif text-lg text-ink-primary font-medium">

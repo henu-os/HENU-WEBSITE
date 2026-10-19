@@ -209,10 +209,10 @@ export function EnquiriesListClient({
           </p>
         </div>
       ) : (
-        <div className="border border-border-default rounded-xl overflow-hidden bg-surface-primary overflow-x-auto">
+        <div className="border border-slate-200/80 rounded-2xl overflow-hidden bg-white overflow-x-auto shadow-2xs">
           <table className="w-full text-left border-collapse text-xs font-sans">
             <thead>
-              <tr className="border-b border-border-default bg-surface-secondary/40 font-mono text-[11px] uppercase tracking-wider text-ink-muted">
+              <tr className="border-b border-slate-200/80 bg-slate-50/80 font-mono text-[11px] uppercase tracking-wider text-slate-500">
                 <th className="p-3.5">Sender</th>
                 <th className="p-3.5">Scope</th>
                 <th className="p-3.5">Status</th>
@@ -221,7 +221,7 @@ export function EnquiriesListClient({
                 <th className="p-3.5 text-right">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border-default">
+            <tbody className="divide-y divide-slate-100">
               {filteredEnquiries.map((enq) => (
                 <tr
                   key={enq.id}

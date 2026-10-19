@@ -352,9 +352,9 @@ export function ServiceListClient({
           </div>
 
           {/* Services Table */}
-          <div className="overflow-x-auto border border-border-default rounded-lg bg-surface-primary shadow-subtle">
+          <div className="overflow-x-auto border border-slate-200/80 rounded-2xl bg-white shadow-2xs">
             <table className="w-full text-left text-sm" aria-label="Services Catalogue Table">
-              <thead className="bg-surface-secondary/60 text-xs font-mono uppercase tracking-wider text-ink-muted border-b border-border-default">
+              <thead className="bg-slate-50/80 text-xs font-mono uppercase tracking-wider text-slate-500 border-b border-slate-200/80">
                 <tr>
                   <th scope="col" className="px-4 py-3 w-16 text-center">Order</th>
                   <th scope="col" className="px-6 py-3">Service</th>
@@ -364,7 +364,7 @@ export function ServiceListClient({
                   <th scope="col" className="px-6 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-default font-sans">
+              <tbody className="divide-y divide-slate-100 font-sans">
                 {filteredServices.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="px-6 py-12 text-center text-ink-muted font-mono text-xs">
@@ -601,9 +601,9 @@ export function ServiceListClient({
           )}
 
           {/* Categories List */}
-          <div className="overflow-x-auto border border-border-default rounded-lg bg-surface-primary shadow-subtle">
+          <div className="overflow-x-auto border border-slate-200/80 rounded-2xl bg-white shadow-2xs">
             <table className="w-full text-left text-sm" aria-label="Service Categories Table">
-              <thead className="bg-surface-secondary/60 text-xs font-mono uppercase tracking-wider text-ink-muted border-b border-border-default">
+              <thead className="bg-slate-50/80 text-xs font-mono uppercase tracking-wider text-slate-500 border-b border-slate-200/80">
                 <tr>
                   <th scope="col" className="px-4 py-3 w-16 text-center">Order</th>
                   <th scope="col" className="px-6 py-3">Category</th>
@@ -612,7 +612,7 @@ export function ServiceListClient({
                   <th scope="col" className="px-6 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border-default font-sans">
+              <tbody className="divide-y divide-slate-100 font-sans">
                 {initialCategories.map((cat, index) => {
                   const isEditing = editingCatId === cat.id;
                   const serviceCount = initialServices.filter((s) => s.category_id === cat.id).length;

@@ -1,9 +1,8 @@
-import React from "react";
+import Image from "next/image";
 import type { HomeContent } from "@/types/domain";
 import { Container } from "@/components/ui/container";
 import { LinkButton } from "@/components/ui/link-button";
 import { Badge } from "@/components/ui/badge";
-import { ParticleAttractorBox } from "./particle-attractor-box";
 import { HomeHeroHeadline } from "./home-hero-headline";
 
 interface HomeHeroProps {
@@ -13,9 +12,11 @@ interface HomeHeroProps {
 /**
  * HOME-001: Home Opening & Page Shell.
  * Asymmetric display-xl headline, static chromatic Spectrum field, dual CTAs.
- * Works with or without JavaScript, fast LCP, real h1, strict contrast.
+ * Right column displays the admin-configured hero visual asset (defaults to HENU OS).
  */
 export function HomeHero({ content }: HomeHeroProps) {
+  const activeHeroImage = content.hero_image_url?.trim() || "/brand/henu-os.png";
+
   return (
     <section
       aria-label="Welcome to HENU"
@@ -52,9 +53,21 @@ export function HomeHero({ content }: HomeHeroProps) {
             </div>
           </div>
 
-          {/* Right Column: Interactive Three.js Particle Attractor Box */}
+          {/* Right Column: Hero Visual Asset (Admin configurable, defaults to HENU OS) */}
           <div className="lg:col-span-5 flex justify-center">
-            <ParticleAttractorBox />
+            <div className="relative w-full max-w-[480px] aspect-square rounded-2xl overflow-hidden border border-border-default shadow-elevated bg-gradient-to-b from-[#f9f5ff]/90 via-[#f4edff]/70 to-[#ede2fe]/90 dark:from-[#130826]/90 dark:via-[#190a33]/80 dark:to-[#0f0520]/95 backdrop-blur-md flex items-center justify-center p-6 group transition-all duration-300 hover:shadow-2xl">
+              <div className="relative w-full h-full flex items-center justify-center">
+                <Image
+                  src={activeHeroImage}
+                  alt="HENU Sovereign Computing"
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 480px"
+                  priority
+                  className="object-contain drop-shadow-md select-none transition-transform duration-500 group-hover:scale-[1.02]"
+                  unoptimized={activeHeroImage.startsWith("http")}
+                />
+              </div>
+            </div>
           </div>
         </div>
 

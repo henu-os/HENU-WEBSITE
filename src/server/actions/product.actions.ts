@@ -27,6 +27,7 @@ const productInputSchema = z.object({
       "CTA target must be an internal path or https:// URL."
     ),
   display_order: z.number().int().default(1),
+  image_url: z.string().trim().nullable().optional(),
   seo_title: z.string().trim().nullable().optional(),
   seo_description: z.string().trim().nullable().optional(),
 });
@@ -42,6 +43,7 @@ export async function createProductAction(data: CreateProductInput) {
       capabilities: data.capabilities ?? null,
       signature_module_content: data.signature_module_content ?? null,
       cover_media_id: data.cover_media_id ?? null,
+      image_url: data.image_url ?? null,
     },
     admin
   );

@@ -116,8 +116,8 @@ export function QuickBuyEditorClient({ initialItems }: QuickBuyEditorClientProps
             onClick={() => setActiveTab("all")}
             className={`px-3.5 py-1.5 rounded-lg font-mono text-xs uppercase tracking-wider font-semibold transition-all ${
               activeTab === "all"
-                ? "bg-primary text-primary-on shadow-xs"
-                : "bg-surface-secondary text-ink-secondary hover:text-ink-primary"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "bg-white text-slate-600 hover:text-slate-900 border border-slate-200"
             }`}
           >
             All Items ({initialItems.length})
@@ -127,8 +127,8 @@ export function QuickBuyEditorClient({ initialItems }: QuickBuyEditorClientProps
             onClick={() => setActiveTab("product")}
             className={`px-3.5 py-1.5 rounded-lg font-mono text-xs uppercase tracking-wider font-semibold transition-all ${
               activeTab === "product"
-                ? "bg-primary text-primary-on shadow-xs"
-                : "bg-surface-secondary text-ink-secondary hover:text-ink-primary"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "bg-white text-slate-600 hover:text-slate-900 border border-slate-200"
             }`}
           >
             Products (4)
@@ -138,8 +138,8 @@ export function QuickBuyEditorClient({ initialItems }: QuickBuyEditorClientProps
             onClick={() => setActiveTab("service")}
             className={`px-3.5 py-1.5 rounded-lg font-mono text-xs uppercase tracking-wider font-semibold transition-all ${
               activeTab === "service"
-                ? "bg-primary text-primary-on shadow-xs"
-                : "bg-surface-secondary text-ink-secondary hover:text-ink-primary"
+                ? "bg-slate-900 text-white shadow-xs"
+                : "bg-white text-slate-600 hover:text-slate-900 border border-slate-200"
             }`}
           >
             Services (9)
@@ -169,11 +169,11 @@ export function QuickBuyEditorClient({ initialItems }: QuickBuyEditorClientProps
           return (
             <div
               key={item.id}
-              className="p-5 rounded-xl border border-border-default bg-surface-primary shadow-xs hover:border-border-muted transition-colors space-y-4"
+              className="p-5 rounded-2xl border border-slate-200/80 bg-white shadow-2xs hover:border-slate-300 transition-all space-y-4"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-3">
-                  <span className="px-2 py-0.5 rounded font-mono text-[10px] uppercase font-bold bg-surface-secondary text-ink-muted border border-border-default">
+                  <span className="px-2 py-0.5 rounded font-mono text-[10px] uppercase font-bold bg-slate-100 text-slate-700 border border-slate-200">
                     {item.categoryCode}
                   </span>
                   <div>

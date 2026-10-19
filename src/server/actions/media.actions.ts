@@ -1,5 +1,7 @@
 "use server";
 
+import fs from "fs";
+import path from "path";
 import { requireAdminSession } from "@/server/auth/session";
 import { mediaService } from "@/server/services/media.service";
 import { ValidationError } from "@/lib/errors";
@@ -29,7 +31,19 @@ export async function uploadMediaAction(formData: FormData) {
     adminEmail: admin.email,
   });
 
-  return { success: true, asset };
+  try {
+    const uploadDir = path.join(process.cwd(), "public", path.dirname(asset.storage_key));
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    fs.writeFileSync(path.join(process.cwd(), "public", asset.storage_key), buffer);
+  } catch (err) {
+    console.warn("[uploadMediaAction] Could not write to public folder:", err);
+  }
+
+  const publicUrl = `/${asset.storage_key}`;
+
+  return { success: true, asset, publicUrl };
 }
 
 export async function deleteMediaAction(assetId: string) {

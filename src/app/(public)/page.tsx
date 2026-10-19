@@ -1,3 +1,4 @@
+/* eslint-disable react/no-danger */
 import React from "react";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -8,7 +9,6 @@ import { Container, Section } from "@/components/ui/container";
 import { Badge } from "@/components/ui/badge";
 import { LinkButton } from "@/components/ui/link-button";
 import { ServiceInteractiveCard } from "@/components/features/services/service-interactive-card";
-import { HeroScrollDragonFlight } from "@/components/features/brand-animation/hero-scroll-dragon-flight";
 
 export const revalidate = 3600;
 
@@ -83,9 +83,6 @@ export default async function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-
-      {/* 3D Perspective Dragon Flight & Volumetric Particle Scatter on Hero Scroll */}
-      <HeroScrollDragonFlight />
 
       {/* 1. Opening / Hero (HOME-001) */}
       <HomeHero content={content} />

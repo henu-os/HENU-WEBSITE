@@ -262,7 +262,7 @@ export function QuickBuyView({ initialItems }: QuickBuyViewProps = {}) {
                   {/* Top Meta Strip: Category Code & Type Tag */}
                   <div className="flex items-center justify-between pt-1">
                     <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted">
-                      {item.categoryCode} // {item.category}
+                      {item.categoryCode} {"//"} {item.category}
                     </span>
                     <span className={`px-2 py-0.5 rounded-full font-mono text-[10px] font-semibold border ${colors.badge} flex items-center gap-1.5`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${colors.dot}`} />

@@ -292,6 +292,7 @@ export interface Database {
           primary_cta_type: "explore" | "download" | "waitlist" | "demo" | "enquire";
           primary_cta_target: string;
           cover_media_id: string | null;
+          image_url?: string | null;
           display_order: number;
           seo_title: string | null;
           seo_description: string | null;
@@ -318,6 +319,7 @@ export interface Database {
           primary_cta_type?: "explore" | "download" | "waitlist" | "demo" | "enquire";
           primary_cta_target?: string;
           cover_media_id?: string | null;
+          image_url?: string | null;
           display_order?: number;
           seo_title?: string | null;
           seo_description?: string | null;
@@ -344,6 +346,7 @@ export interface Database {
           primary_cta_type?: "explore" | "download" | "waitlist" | "demo" | "enquire";
           primary_cta_target?: string;
           cover_media_id?: string | null;
+          image_url?: string | null;
           display_order?: number;
           seo_title?: string | null;
           seo_description?: string | null;
@@ -518,6 +521,7 @@ export interface Database {
           hero_primary_cta_target: string;
           hero_secondary_cta_label: string;
           hero_secondary_cta_target: string;
+          hero_image_url?: string | null;
           flagship_headline: string;
           flagship_summary: string;
           services_intro: string;
@@ -535,6 +539,7 @@ export interface Database {
           hero_primary_cta_target?: string;
           hero_secondary_cta_label?: string;
           hero_secondary_cta_target?: string;
+          hero_image_url?: string | null;
           flagship_headline?: string;
           flagship_summary: string;
           services_intro: string;
@@ -552,6 +557,7 @@ export interface Database {
           hero_primary_cta_target?: string;
           hero_secondary_cta_label?: string;
           hero_secondary_cta_target?: string;
+          hero_image_url?: string | null;
           flagship_headline?: string;
           flagship_summary?: string;
           services_intro?: string;

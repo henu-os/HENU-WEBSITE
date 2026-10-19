@@ -25,7 +25,12 @@ export default async function AdminProductsPage() {
         </div>
 
         <div>
-          <LinkButton href="/admin/products/new" variant="primary" size="md">
+          <LinkButton
+            href="/admin/products/new"
+            variant="primary"
+            size="md"
+            className="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 hover:from-emerald-500 hover:to-cyan-500 text-white shadow-[0_4px_14px_rgba(5,150,105,0.25)] border-0 font-semibold"
+          >
             + New Product
           </LinkButton>
         </div>

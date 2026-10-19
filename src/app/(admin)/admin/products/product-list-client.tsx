@@ -53,9 +53,9 @@ export function ProductListClient({ products }: ProductListClientProps) {
   };
 
   return (
-    <div className="overflow-x-auto border border-border-default rounded-lg bg-surface-primary shadow-subtle">
+    <div className="overflow-x-auto border border-slate-200/80 rounded-2xl bg-white shadow-2xs">
       <table className="w-full text-left text-sm" aria-label="Ecosystem Products Table">
-        <thead className="bg-surface-secondary/60 text-xs font-mono uppercase tracking-wider text-ink-muted border-b border-border-default">
+        <thead className="bg-slate-50/80 text-xs font-mono uppercase tracking-wider text-slate-500 border-b border-slate-200/80">
           <tr>
             <th scope="col" className="px-6 py-4">Product Name</th>
             <th scope="col" className="px-6 py-4">Slug</th>
@@ -65,24 +65,24 @@ export function ProductListClient({ products }: ProductListClientProps) {
             <th scope="col" className="px-6 py-4 text-right">Actions</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-border-default font-sans">
+        <tbody className="divide-y divide-slate-100 font-sans">
           {products.map((product) => {
             const isFlagship = product.slug === "henu-os";
 
             return (
-              <tr key={product.id} className="hover:bg-surface-secondary/20 transition-colors">
-                <td className="px-6 py-4 font-medium text-ink-primary">
+              <tr key={product.id} className="hover:bg-slate-50/60 transition-colors">
+                <td className="px-6 py-4 font-medium text-slate-900">
                   <div className="flex items-center gap-2">
-                    <span>{product.name}</span>
+                    <span className="font-semibold text-slate-900">{product.name}</span>
                     {isFlagship && (
-                      <span className="px-1.5 py-0.5 text-[10px] font-mono uppercase bg-primary text-primary-on rounded">
+                      <span className="px-1.5 py-0.5 text-[10px] font-mono uppercase bg-slate-900 text-white rounded font-medium">
                         Flagship
                       </span>
                     )}
                   </div>
-                  <div className="text-xs text-ink-muted truncate max-w-xs">{product.tagline}</div>
+                  <div className="text-xs text-slate-500 truncate max-w-xs">{product.tagline}</div>
                 </td>
-                <td className="px-6 py-4 font-mono text-xs text-ink-secondary">
+                <td className="px-6 py-4 font-mono text-xs text-slate-600">
                   /products/{product.slug}
                 </td>
                 <td className="px-6 py-4">

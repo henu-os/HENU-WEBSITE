@@ -11,7 +11,7 @@ import { AmbientLivingMesh } from "@/components/ui/ambient-living-mesh";
 import { ComputingLabVisualizer } from "@/components/features/products/computing-lab-visualizer";
 import { ProductsHeroHeadline } from "@/components/features/products/products-hero-headline";
 import { ProductSchematicGlyph } from "@/components/features/products/product-schematic-glyph";
-import { AnimatedProductVisual } from "@/components/features/products/animated-product-visual";
+import { ProductCardImage } from "@/components/features/products/product-card-image";
 import { ClassyArchitecturalVisual } from "@/components/features/products/classy-architectural-case-study-visual";
 import type { Product, ProductStatusLabel } from "@/types/domain";
 
@@ -201,9 +201,9 @@ export default async function ProductsHubPage() {
                   </div>
                 </div>
 
-                {/* Animated Compositor HUD Motion Visual */}
+                {/* Product Visual Image */}
                 <div className="lg:col-span-5">
-                  <AnimatedProductVisual slug="henu-os" />
+                  <ProductCardImage product={flagshipOs} priority />
                 </div>
               </div>
             </div>
@@ -261,7 +261,7 @@ export default async function ProductsHubPage() {
                   </div>
 
                   <div className="lg:col-span-5">
-                    <AnimatedProductVisual slug="henu-ai" />
+                    <ProductCardImage product={henuAi} />
                   </div>
                 </div>
               </div>
@@ -301,7 +301,7 @@ export default async function ProductsHubPage() {
                   </div>
 
                   <div className="lg:col-span-5">
-                    <AnimatedProductVisual slug="henu-pa" />
+                    <ProductCardImage product={henuPa} />
                   </div>
                 </div>
               </div>
@@ -341,7 +341,7 @@ export default async function ProductsHubPage() {
                   </div>
 
                   <div className="lg:col-span-5">
-                    <AnimatedProductVisual slug="henu-ide" />
+                    <ProductCardImage product={henuIde} />
                   </div>
                 </div>
               </div>
@@ -429,7 +429,7 @@ export default async function ProductsHubPage() {
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
                         <span className="font-mono text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded border border-border-default bg-surface-secondary/70 text-ink-secondary">
-                          {String(idx + 1).padStart(2, "0")} // {project.category_slug?.replace(/-/g, " ") || "Enterprise System"}
+                          {String(idx + 1).padStart(2, "0")} {"//"} {project.category_slug?.replace(/-/g, " ") || "Enterprise System"}
                         </span>
                         <span className="inline-flex items-center gap-1.5 font-mono text-[10px] text-ink-secondary font-medium px-2 py-0.5 rounded border border-border-default/80 bg-surface-primary">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-600" />

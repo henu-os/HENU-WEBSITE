@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState, useTransition } from "react";
+import Image from "next/image";
 import type { HomeContent, Product, PortfolioProject } from "@/types/domain";
 import { updateHomeContentAction } from "@/server/actions/home.actions";
+import { uploadMediaAction } from "@/server/actions/media.actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,6 +25,7 @@ export function HomeEditorClient({
   availableProjects,
 }: HomeEditorClientProps) {
   const [isPending, startTransition] = useTransition();
+  const [isUploading, startUploadTransition] = useTransition();
 
   const initialFeaturedProjects = Array.isArray(initialContent.featured_project_ids)
     ? (initialContent.featured_project_ids as string[])
@@ -39,6 +42,7 @@ export function HomeEditorClient({
     hero_primary_cta_target: initialContent.hero_primary_cta_target,
     hero_secondary_cta_label: initialContent.hero_secondary_cta_label,
     hero_secondary_cta_target: initialContent.hero_secondary_cta_target,
+    hero_image_url: initialContent.hero_image_url || "/brand/henu-os.png",
     flagship_headline: initialContent.flagship_headline,
     flagship_summary: initialContent.flagship_summary,
     services_intro: initialContent.services_intro,
@@ -51,6 +55,33 @@ export function HomeEditorClient({
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const fd = new FormData();
+    fd.append("file", file);
+    fd.append("altText", "HENU Home Hero Visual Asset");
+    fd.append("isDecorative", "false");
+
+    startUploadTransition(async () => {
+      try {
+        const result = await uploadMediaAction(fd);
+        if (result.success && result.asset) {
+          const uploadedUrl = result.publicUrl || `/${result.asset.storage_key}`;
+          setFormData((prev) => ({ ...prev, hero_image_url: uploadedUrl }));
+          setStatusMessage({
+            type: "success",
+            text: `Hero image "${result.asset.original_filename}" uploaded successfully. Click "Save & Publish Changes" below to apply.`,
+          });
+        }
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : "Failed to upload image.";
+        setStatusMessage({ type: "error", text: msg });
+      }
+    });
+  };
 
   const toggleFeaturedProject = (projectId: string) => {
     setFormData((prev) => {
@@ -166,6 +197,122 @@ export function HomeEditorClient({
               required
             />
           </FormField>
+        </div>
+
+        {/* Hero Visual Asset (Right-Side Hero Image) */}
+        <div className="pt-6 border-t border-border-subtle space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="font-display text-base font-semibold text-ink-primary">
+                Hero Visual Asset (Right-Side Image)
+              </h3>
+              <p className="text-xs text-ink-secondary mt-0.5">
+                Displays on the right side of the Home opening. Upload an image, choose a preset, or specify an image URL.
+              </p>
+            </div>
+            {formData.hero_image_url && (
+              <Badge variant="success" size="sm">
+                Custom Asset Active
+              </Badge>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+            <div className="md:col-span-7 space-y-4">
+              {/* Direct File Upload */}
+              <div className="p-4 rounded-lg border border-border-default bg-surface-secondary/40 space-y-3">
+                <label
+                  htmlFor="hero-file-upload"
+                  className="block font-mono text-xs font-semibold uppercase tracking-wider text-ink-primary"
+                >
+                  Upload New Image Asset
+                </label>
+                <input
+                  id="hero-file-upload"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                  onChange={handleImageUpload}
+                  disabled={isUploading}
+                  className="block w-full text-xs text-ink-secondary file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-surface-primary file:text-ink-primary hover:file:bg-surface-secondary file:cursor-pointer cursor-pointer border border-border-default rounded-md p-1"
+                />
+                {isUploading && (
+                  <p className="font-mono text-xs text-accent-spectral animate-pulse">
+                    Uploading image asset to media storage...
+                  </p>
+                )}
+              </div>
+
+              {/* URL or Path Input */}
+              <FormField
+                id="hero_image_url"
+                label="Image Path / Public URL"
+                hint="Relative path (e.g. /brand/henu-os.png) or HTTPS URL"
+              >
+                <Input
+                  id="hero_image_url"
+                  value={formData.hero_image_url}
+                  onChange={(e) => setFormData({ ...formData, hero_image_url: e.target.value })}
+                  placeholder="/brand/henu-os.png"
+                />
+              </FormField>
+
+              {/* Presets */}
+              <div className="space-y-1.5">
+                <span className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider">
+                  Quick Brand Presets:
+                </span>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, hero_image_url: "/brand/henu-os.png" })}
+                    className="px-2.5 py-1 text-xs rounded border border-border-default bg-surface-secondary/60 hover:bg-surface-secondary text-ink-primary transition-colors cursor-pointer"
+                  >
+                    HENU OS Default
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, hero_image_url: "/brand/henu-dragon.png" })}
+                    className="px-2.5 py-1 text-xs rounded border border-border-default bg-surface-secondary/60 hover:bg-surface-secondary text-ink-primary transition-colors cursor-pointer"
+                  >
+                    HENU Dragon
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, hero_image_url: "/brand/henu-ai.png" })}
+                    className="px-2.5 py-1 text-xs rounded border border-border-default bg-surface-secondary/60 hover:bg-surface-secondary text-ink-primary transition-colors cursor-pointer"
+                  >
+                    HENU AI
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Preview */}
+            <div className="md:col-span-5 flex flex-col items-center">
+              <span className="block font-mono text-[11px] text-ink-muted uppercase tracking-wider mb-2 self-start">
+                Hero Image Preview:
+              </span>
+              <div className="relative w-full aspect-square max-w-[220px] rounded-xl border border-border-default bg-surface-primary/80 overflow-hidden flex items-center justify-center p-3 shadow-sm">
+                {formData.hero_image_url ? (
+                  <Image
+                    src={formData.hero_image_url}
+                    alt="Hero Preview"
+                    fill
+                    sizes="220px"
+                    className="object-contain p-2"
+                    unoptimized={formData.hero_image_url.startsWith("http")}
+                  />
+                ) : (
+                  <span className="font-mono text-xs text-ink-muted text-center px-4">
+                    No image configured
+                  </span>
+                )}
+              </div>
+              <span className="mt-2 text-[11px] font-mono text-ink-muted text-center break-all max-w-[220px]">
+                {formData.hero_image_url || "Using fallback default"}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
